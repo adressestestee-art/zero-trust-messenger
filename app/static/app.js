@@ -156,10 +156,9 @@
     if (verifiedContacts.length === 0) {
       contactsListEl.innerHTML = `
         <div class="empty-contacts-box">
-          <span class="empty-lock-icon">🛡️</span>
-          <div class="empty-contacts-title">AUCUN CONTACT VÉRIFIÉ</div>
+          <div class="empty-contacts-title">Aucun contact vérifié</div>
           <div class="empty-contacts-desc">
-            Le protocole Zero Trust interdit toute communication tant que le QR Code cryptographique d'un contact n'a pas été scanné.
+            Scannez le QR code d'un contact pour démarrer une conversation chiffrée.
           </div>
         </div>
       `;
@@ -181,10 +180,10 @@
             ${
               unread > 0
                 ? `<span class="unread-badge">${unread}</span>`
-                : `<span class="verified-tag">✓ QR</span>`
+                : `<span class="verified-tag">Vérifié</span>`
             }
           </div>
-          <div class="contact-fp">🔑 ${escapeHtml(contact.fingerprint)}</div>
+          <div class="contact-fp">${escapeHtml(contact.fingerprint)}</div>
         </div>
       `;
 
@@ -750,7 +749,7 @@
           <span>•</span>
           <span>${timeStr}</span>
           <span>•</span>
-          <span style="color: var(--cyber-green);">AES-256-GCM ✓</span>
+          <span style="color: #059669; font-weight: 600;">Chiffré AES-256</span>
         </div>
       `;
       chatMessagesArea.appendChild(row);

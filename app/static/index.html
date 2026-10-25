@@ -3,72 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Zero Trust Messenger — E2EE Multiplateforme</title>
+  <title>Zero Trust Messenger</title>
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
 
   <!-- BANNIÈRE D'UPGRADE HTTPS AUTOMATIQUE POUR CAMÉRA ANDROID -->
-  <div id="httpsUpgradeBanner" style="display: none; background: #ffb800; color: #000; padding: 10px 16px; font-size: 13px; font-weight: 700; text-align: center; cursor: pointer;">
-    ⚠️ Android exige le mode HTTPS pour demander l'autorisation Caméra. Appuyez ici pour basculer sur HTTPS (https://192.168.0.44:5050) →
+  <div id="httpsUpgradeBanner" style="display: none; background: #fef3c7; color: #92400e; padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; border-bottom: 1px solid #fde68a;">
+    Android requiert HTTPS pour autoriser la caméra. Cliquez ici pour activer le mode sécurisé.
   </div>
 
-  <!-- BARRE SUPÉRIEURE ÉPURÉE -->
+  <!-- BARRE SUPÉRIEURE ÉPURÉE ET CLAIRE -->
   <header class="top-security-bar">
     <div class="status-left">
       <div class="brand-badge">
         <span class="pulse-dot"></span>
         <span>ZeroTrust Messenger</span>
       </div>
-      <span class="badge-pill">E2EE Militaire</span>
-      <span id="relayStatusBadge" class="badge-pill badge-cyan">Cloud 24/7 Connecté</span>
+      <span class="badge-pill">E2EE Chiffré</span>
+      <span id="relayStatusBadge" class="badge-pill badge-cyan">Relais Connecté</span>
     </div>
     <div class="status-right">
       <button id="btnShow4gQr" class="btn-ghost-xs" title="Afficher le QR code pour ouvrir l'application sur smartphone">
-        📱 Ouvrir sur Mobile
+        Ouvrir sur Mobile
       </button>
       <button id="btnOpenSecondDevice" class="btn-ghost-xs" title="Tester le chat avec un second appareil">
-        + Tester 2e Appareil
+        Tester 2e Appareil
       </button>
     </div>
   </header>
 
-  <!-- ESPACE DE TRAVAIL ADAPTATIF (SPLIT-VIEW DESKTOP / STACK NAVIGATION MOBILE) -->
+  <!-- ESPACE DE TRAVAIL ADAPTATIF -->
   <main class="app-workspace" id="appWorkspace" data-mobile-view="contacts">
 
-    <!-- VOLET GAUCHE : IDENTITÉ CRYPTOGRAPHIQUE & CONTACTS VÉRIFIÉS PAR QR -->
+    <!-- VOLET GAUCHE : CONTACTS ET IDENTITÉ -->
     <aside class="sidebar-pane">
       <div class="identity-header">
         <div class="identity-card">
           <div class="identity-row">
             <div class="identity-alias-group">
-              <span class="shield-icon">🛡️</span>
               <span id="myAliasText" class="identity-alias">Chargement...</span>
             </div>
-            <button id="btnEditAlias" class="btn-edit-alias">Renommer</button>
+            <button id="btnEditAlias" class="btn-edit-alias">Modifier</button>
           </div>
           <div class="identity-meta">
             <div>ID : <span id="myDeviceIdText">...</span></div>
-            <div>Empreinte Clé : <span id="myFingerprintText" class="fp-highlight">...</span></div>
+            <div>Empreinte : <span id="myFingerprintText" class="fp-highlight">...</span></div>
           </div>
         </div>
 
-        <!-- BOUTONS PROÉMINENTS DE SCAN ET PARTAGE QR -->
+        <!-- BOUTONS D'ACTION ÉPURÉS SANS EMOJI -->
         <div class="qr-action-grid">
           <button id="btnShowMyQr" class="btn-qr-secondary">
-            <span>🏁</span>
-            <span>Afficher mon QR</span>
+            Afficher mon QR
           </button>
           <button id="btnOpenScanner" class="btn-qr-primary">
-            <span>📷</span>
-            <span>Scanner Contact</span>
+            Scanner Contact
           </button>
         </div>
       </div>
 
       <div class="sidebar-section-title">
-        <span>Contacts Vérifiés (Keyring)</span>
+        <span>Contacts Vérifiés</span>
         <span id="verifiedCountBadge" class="badge-pill">0</span>
       </div>
 
@@ -77,28 +74,27 @@
       </div>
     </aside>
 
-    <!-- VOLET DROIT : FENÊTRE DE DISCUSSION E2EE -->
+    <!-- VOLET DROIT : FENÊTRE DE DISCUSSION -->
     <section class="chat-pane">
 
-      <!-- ÉCRAN DE BLOCAGE ZERO TRUST (Tant qu'aucun contact vérifié n'est sélectionné) -->
+      <!-- ÉCRAN D'ACCUEIL INITIAL SANS EMOJI -->
       <div id="zeroTrustLockScreen" class="zero-trust-lock-screen">
-        <div class="lock-shield-circle">🔒</div>
-        <h1 class="lock-title">POLITIQUE ZERO TRUST ACTIVE</h1>
+        <h1 class="lock-title">Messagerie Sécurisée de Bout en Bout</h1>
         <p class="lock-subtitle">
-          Aucun annuaire public n'existe. Toute communication est matériellement et cryptographiquement bloquée tant que vous n'avez pas scanné et vérifié le <strong>QR Code unique (ECDH secp256r1)</strong> de votre interlocuteur.
+          Pour démarrer une discussion, scannez le QR code de votre interlocuteur. Les échanges sont entièrement chiffrés directement sur vos appareils.
         </p>
         <div class="lock-steps">
           <div class="step-card">
-            <div class="step-num">ÉTAPE 01 // IDENTITÉ</div>
-            <div class="step-text">Votre paire de clés <strong>secp256r1</strong> est générée localement et stockée hors serveur.</div>
+            <div class="step-num">Étape 1 // Clés Locales</div>
+            <div class="step-text">Votre paire de clés cryptographiques est créée et conservée uniquement sur votre appareil.</div>
           </div>
           <div class="step-card">
-            <div class="step-num">ÉTAPE 02 // ÉCHANGE QR</div>
-            <div class="step-text">Cliquez sur <strong>Afficher mon QR</strong> ou <strong>Scanner Contact</strong> (Caméra ou Import Image).</div>
+            <div class="step-num">Étape 2 // Échange de Clés</div>
+            <div class="step-text">Cliquez sur <strong>Afficher mon QR</strong> ou <strong>Scanner Contact</strong> pour appairer vos appareils.</div>
           </div>
           <div class="step-card">
-            <div class="step-num">ÉTAPE 03 // CANAL E2EE</div>
-            <div class="step-text">La signature ECDSA est vérifiée et le canal <strong>AES-256-GCM</strong> se déverrouille.</div>
+            <div class="step-num">Étape 3 // Canal Chiffré</div>
+            <div class="step-text">La liaison est vérifiée et vos messages sont transmis sans aucun accès possible par le serveur.</div>
           </div>
         </div>
       </div>
@@ -107,18 +103,18 @@
       <div id="activeChatContainer" class="active-chat-container" style="display: none;">
         <header class="chat-header">
           <div class="chat-header-left">
-            <button id="btnMobileBack" class="btn-mobile-back">← Contacts</button>
+            <button id="btnMobileBack" class="btn-mobile-back">Retour</button>
             <div>
               <div class="chat-contact-title">
                 <span id="activeContactName">Contact</span>
-                <span class="verified-tag">✓ QR VÉRIFIÉ</span>
+                <span class="verified-tag">Vérifié</span>
               </div>
               <div id="activeContactFp" class="chat-crypto-sub">Empreinte : ...</div>
             </div>
           </div>
           <div>
             <button id="btnToggleCipherInspector" class="btn-ghost-xs">
-              Inspecteur Paquets E2EE : ON
+              Inspecteur : ON
             </button>
           </div>
         </header>
@@ -132,12 +128,11 @@
             type="text"
             id="chatInput"
             class="chat-input"
-            placeholder="Message chiffré de bout en bout (ECDH secp256r1 + AES-256-GCM)..."
+            placeholder="Écrivez un message chiffré..."
             required
           />
           <button type="submit" class="btn-send">
-            <span>Chiffrer & Envoyer</span>
-            <span>➤</span>
+            <span>Envoyer</span>
           </button>
         </form>
       </div>
@@ -146,14 +141,12 @@
 
   </main>
 
-  <!-- ========================================================================
-       MODALE 1 : AFFICHER MON QR CODE D'IDENTIFICATION CRYPTOGRAPHIQUE
-       ======================================================================== -->
+  <!-- MODALE 1 : AFFICHER MON QR CODE -->
   <div id="modalMyQr" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <span class="modal-title">Mon QR Code d'Identité (secp256r1)</span>
-        <button id="btnCloseMyQr" class="btn-close-modal">✕</button>
+        <span class="modal-title">Mon QR Code de Contact</span>
+        <button id="btnCloseMyQr" class="btn-close-modal">Fermer</button>
       </div>
 
       <div class="qr-display-wrapper">
@@ -161,28 +154,26 @@
       </div>
 
       <div class="qr-fingerprint-box">
-        <div style="color: var(--text-secondary); margin-bottom: 4px;">Agent : <strong id="modalMyAlias" style="color: #fff;"></strong></div>
-        <div>Empreinte SHA-256 : <span id="modalMyFp" style="color: var(--cyber-green);"></span></div>
+        <div style="color: var(--text-secondary); margin-bottom: 4px;">Identifiant : <strong id="modalMyAlias" style="color: var(--text-primary);"></strong></div>
+        <div>Empreinte : <span id="modalMyFp" style="color: var(--accent-primary); font-weight: 600;"></span></div>
       </div>
 
       <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-bottom: 12px; line-height: 1.45;">
-        Faites scanner ce QR Code par la caméra de votre contact, ou téléchargez l'image PNG pour l'importer sur un poste Desktop (Windows / macOS).
+        Faites scanner ce code par la caméra de votre contact pour établir la liaison chiffrée.
       </p>
 
       <div class="modal-actions-row">
-        <button id="btnDownloadQrPng" class="btn-modal-action">💾 Télécharger Image QR (.png)</button>
+        <button id="btnDownloadQrPng" class="btn-modal-action">Enregistrer l'image</button>
       </div>
     </div>
   </div>
 
-  <!-- ========================================================================
-       MODALE 2 : SCANNER UN CONTACT (FLUX CAMÉRA + AUTORISATION ANDROID + IMPORT)
-       ======================================================================== -->
+  <!-- MODALE 2 : SCANNER UN CONTACT -->
   <div id="modalScanner" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <span class="modal-title">Scanner un Contact Zero Trust</span>
-        <button id="btnCloseScanner" class="btn-close-modal">✕</button>
+        <span class="modal-title">Scanner un Contact</span>
+        <button id="btnCloseScanner" class="btn-close-modal">Fermer</button>
       </div>
 
       <div class="scanner-viewport">
@@ -190,43 +181,38 @@
         <div class="scanner-reticle">
           <div class="scanner-laser"></div>
         </div>
-        <!-- Bouton d'autorisation Caméra explicite au centre si permission en attente -->
-        <button id="btnRequestCameraPerm" style="display: none; position: absolute; z-index: 5; background: var(--cyber-green); color: #000; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 0 25px rgba(0,255,102,0.6);">
-          🔓 Autoriser l'accès à la Caméra
+        <button id="btnRequestCameraPerm" style="display: none; position: absolute; z-index: 5; background: var(--accent-primary); color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 13px; cursor: pointer;">
+          Autoriser la Caméra
         </button>
         <canvas id="scannerWorkCanvas" style="display: none;"></canvas>
       </div>
 
       <div id="scannerStatusMsg" class="scanner-status-msg">
-        Demande d'autorisation caméra en cours...
+        Positionnez le QR code dans le cadre...
       </div>
 
       <div class="modal-actions-row">
-        <button id="btnNativeCameraCapture" class="btn-modal-action" style="background: var(--cyber-green); color: #000;">
-          📸 Photo QR (Caméra Android)
+        <button id="btnNativeCameraCapture" class="btn-modal-action" style="background: var(--accent-primary); color: #fff;">
+          Prendre une photo
         </button>
         <button id="btnImportQrImage" class="btn-modal-action">
-          📁 Importer Image
+          Importer une image
         </button>
-        <button id="btnSwitchCamera" class="btn-modal-action" style="flex: 0.45;">
-          🔄
+        <button id="btnSwitchCamera" class="btn-modal-action" style="flex: 0.35;">
+          Changer
         </button>
       </div>
-      <!-- Capture caméra arrière directe Android -->
       <input type="file" id="qrNativeCameraInput" accept="image/*" capture="environment" style="display: none;" />
-      <!-- Sélection fichier image galerie / PC -->
       <input type="file" id="qrFileInput" accept="image/*" style="display: none;" />
     </div>
   </div>
 
-  <!-- ========================================================================
-       MODALE 3 : QR CODE D'ACCÈS MOBILE 4G / 5G (ZÉRO SAISIE MANUELLE / ANTI-PHISHING)
-       ======================================================================== -->
+  <!-- MODALE 3 : OUVRIR SUR MOBILE -->
   <div id="modal4gUrlQr" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <span class="modal-title">📱 Ouvrir sur Téléphone en 4G / 5G</span>
-        <button id="btnClose4gQr" class="btn-close-modal">✕</button>
+        <span class="modal-title">Ouvrir sur Téléphone</span>
+        <button id="btnClose4gQr" class="btn-close-modal">Fermer</button>
       </div>
 
       <div class="qr-display-wrapper">
@@ -234,22 +220,21 @@
       </div>
 
       <div class="qr-fingerprint-box" style="text-align: center;">
-        <div style="color: var(--text-secondary); margin-bottom: 4px;">Tunnel Cloudflare HTTPS / WSS Vérifié :</div>
-        <a id="tunnel4gUrlText" href="https://script-gardening-antibody-fields.trycloudflare.com" target="_blank" style="color: var(--cyber-cyan); font-weight: 700; word-break: break-all;">
-          https://script-gardening-antibody-fields.trycloudflare.com
+        <div style="color: var(--text-secondary); margin-bottom: 4px;">Adresse Cloud HTTPS :</div>
+        <a id="tunnel4gUrlText" href="https://zero-trust-messenger.onrender.com" target="_blank" style="color: var(--accent-primary); font-weight: 600; word-break: break-all;">
+          https://zero-trust-messenger.onrender.com
         </a>
       </div>
 
       <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-bottom: 8px; line-height: 1.45;">
-        Scannez ce QR Code avec l'appareil photo standard de votre téléphone pour ouvrir directement le nouveau tunnel sécurisé <strong>sans risquer la moindre faute de frappe ou redirection tierce</strong>.
+        Scannez ce QR Code avec l'appareil photo de votre téléphone pour accéder directement à l'application.
       </p>
     </div>
   </div>
 
-  <!-- Librairies QR locales (100% hors-ligne, zéro dépendance externe) -->
   <script src="/vendor/qrcode.min.js"></script>
   <script src="/vendor/jsQR.js"></script>
-  <script src="/crypto.js?v=2.5"></script>
-  <script src="/app.js?v=2.5"></script>
+  <script src="/crypto.js?v=2.6"></script>
+  <script src="/app.js?v=2.6"></script>
 </body>
 </html>
