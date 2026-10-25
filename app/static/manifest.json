@@ -1,0 +1,10 @@
+{
+  "name": "Zero Trust Messenger",
+  "short_name": "ZT Messenger",
+  "description": "Messagerie instantanée Zero Trust chiffrée de bout en bout (ECDH secp256r1 + AES-256-GCM) par échange exclusif de QR Code.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "any"
+}

@@ -1,0 +1,865 @@
+:root {
+  --bg-black: #000000;
+  --bg-surface: #070a09;
+  --bg-card: #0e1311;
+  --bg-elevated: #141c19;
+  --border-subtle: #1c2823;
+  --border-glow: rgba(0, 255, 102, 0.35);
+
+  --cyber-green: #00ff66;
+  --cyber-green-dim: rgba(0, 255, 102, 0.14);
+  --cyber-cyan: #00e5ff;
+  --cyber-cyan-dim: rgba(0, 229, 255, 0.14);
+  --alert-red: #ff3355;
+  --warn-amber: #ffb800;
+
+  --text-primary: #f2f7f5;
+  --text-secondary: #92a69d;
+  --text-muted: #566960;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-black);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   TOP STATUS BAR
+   ========================================================================== */
+.top-security-bar {
+  height: 36px;
+  background: #030504;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.status-left, .status-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyber-green);
+  box-shadow: 0 0 10px var(--cyber-green);
+  display: inline-block;
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.badge-pill {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--cyber-green-dim);
+  color: var(--cyber-green);
+  border: 1px solid rgba(0, 255, 102, 0.3);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.badge-cyan {
+  background: var(--cyber-cyan-dim);
+  color: var(--cyber-cyan);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.btn-ghost-xs {
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--cyber-cyan);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-ghost-xs:hover {
+  background: var(--cyber-cyan);
+  color: var(--bg-black);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   ADAPTIVE APP SHELL (DESKTOP SPLIT VIEW VS MOBILE STACK NAVIGATION)
+   ========================================================================== */
+.app-workspace {
+  display: flex;
+  width: 100%;
+  height: calc(100% - 36px);
+  background: var(--bg-black);
+  position: relative;
+}
+
+/* Volet gauche : Sidebar Identité & Contacts Vérifiés */
+.sidebar-pane {
+  width: 360px;
+  min-width: 320px;
+  height: 100%;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+}
+
+/* Volet droit : Fenêtre de Chat E2EE */
+.chat-pane {
+  flex: 1;
+  height: 100%;
+  background: var(--bg-black);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ==========================================================================
+   SIDEBAR : CARTE D'IDENTITÉ LOCALE & BOUTONS D'ACTION QR PROÉMINENTS
+   ========================================================================== */
+.identity-header {
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(0, 255, 102, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.identity-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.identity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.identity-alias-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shield-icon {
+  color: var(--cyber-green);
+  font-size: 16px;
+}
+
+.identity-alias {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+
+.btn-edit-alias {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.btn-edit-alias:hover {
+  border-color: var(--cyber-green);
+  color: var(--cyber-green);
+}
+
+.identity-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fp-highlight {
+  color: var(--cyber-cyan);
+}
+
+/* Boutons proéminents : Afficher mon QR Code & Scanner un contact */
+.qr-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-qr-primary, .btn-qr-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-transform: uppercase;
+}
+
+.btn-qr-secondary {
+  background: rgba(0, 255, 102, 0.08);
+  color: var(--cyber-green);
+  border: 1.5px solid var(--cyber-green);
+}
+
+.btn-qr-secondary:hover {
+  background: rgba(0, 255, 102, 0.18);
+  box-shadow: 0 0 14px rgba(0, 255, 102, 0.25);
+}
+
+.btn-qr-primary {
+  background: var(--cyber-green);
+  color: #000000;
+  border: 1.5px solid var(--cyber-green);
+  box-shadow: 0 0 16px rgba(0, 255, 102, 0.3);
+}
+
+.btn-qr-primary:hover {
+  background: #26ff7d;
+  box-shadow: 0 0 24px rgba(0, 255, 102, 0.55);
+  transform: translateY(-1px);
+}
+
+/* Section Liste des Contacts Vérifiés */
+.sidebar-section-title {
+  padding: 12px 16px 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.contacts-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 10px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.contact-item:hover {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+.contact-item.active {
+  background: var(--bg-elevated);
+  border-color: var(--cyber-green);
+  box-shadow: inset 3px 0 0 var(--cyber-green);
+}
+
+.contact-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--cyber-green-dim);
+  border: 1px solid var(--cyber-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyber-green);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.contact-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.contact-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verified-tag {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--cyber-green);
+  background: rgba(0, 255, 102, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.contact-fp {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unread-badge {
+  background: var(--cyber-green);
+  color: #000;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+/* État Vide Zero Trust (Aucun contact scanné) */
+.empty-contacts-box {
+  margin: 24px 12px;
+  padding: 24px 16px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 12px;
+  text-align: center;
+  background: rgba(14, 19, 17, 0.5);
+}
+
+.empty-lock-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.empty-contacts-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.empty-contacts-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   VOLET DE CHAT E2EE (DROITE SUR DESKTOP / PLEIN ÉCRAN SUR MOBILE)
+   ========================================================================== */
+.zero-trust-lock-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  background: radial-gradient(circle at center, rgba(0, 255, 102, 0.05) 0%, rgba(0, 0, 0, 0) 65%);
+}
+
+.lock-shield-circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 2px solid var(--cyber-green);
+  background: var(--cyber-green-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 30px rgba(0, 255, 102, 0.2);
+}
+
+.lock-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--cyber-green);
+  margin-bottom: 10px;
+}
+
+.lock-subtitle {
+  max-width: 480px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.lock-steps {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 640px;
+}
+
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 14px;
+  width: 190px;
+  text-align: left;
+}
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cyber-cyan);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.step-text {
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* Vue de Chat Active */
+.active-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.chat-header {
+  padding: 12px 20px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-mobile-back {
+  display: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--cyber-green);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.chat-contact-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-crypto-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cyber-green);
+  margin-top: 2px;
+}
+
+.chat-messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.system-crypto-notice {
+  align-self: center;
+  background: rgba(0, 255, 102, 0.06);
+  border: 1px solid rgba(0, 255, 102, 0.25);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 560px;
+  margin-bottom: 8px;
+}
+
+.msg-row {
+  display: flex;
+  flex-direction: column;
+  max-width: 72%;
+}
+
+.msg-row.outgoing {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.msg-row.incoming {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.msg-bubble {
+  padding: 11px 15px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  position: relative;
+  word-break: break-word;
+}
+
+.msg-row.outgoing .msg-bubble {
+  background: #062b16;
+  border: 1px solid rgba(0, 255, 102, 0.45);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.msg-row.incoming .msg-bubble {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.msg-cipher-preview {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--cyber-cyan);
+  background: rgba(0, 229, 255, 0.06);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Zone de saisie de message */
+.chat-composer {
+  padding: 14px 20px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 12px 18px;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.chat-input:focus {
+  border-color: var(--cyber-green);
+  box-shadow: 0 0 12px rgba(0, 255, 102, 0.15);
+}
+
+.btn-send {
+  background: var(--cyber-green);
+  color: #000000;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.btn-send:hover {
+  background: #29ff80;
+  box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+}
+
+/* ==========================================================================
+   MODALES : AFFICHER MON QR CODE & SCANNER UN CONTACT (CAMÉRA + IMPORT IMAGE)
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--cyber-green);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;
+  padding: 22px;
+  box-shadow: 0 0 40px rgba(0, 255, 102, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: var(--cyber-green);
+  text-transform: uppercase;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-close-modal:hover {
+  border-color: var(--alert-red);
+  color: var(--alert-red);
+}
+
+/* Boîte QR Code Blanc Pur pour contraste optique maximal */
+.qr-display-wrapper {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 0 25px rgba(0, 255, 102, 0.35);
+  margin: 8px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-fingerprint-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.modal-actions-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.btn-modal-action {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--cyber-green);
+  background: var(--cyber-green-dim);
+  color: var(--cyber-green);
+  transition: all 0.15s;
+}
+
+.btn-modal-action:hover {
+  background: var(--cyber-green);
+  color: #000;
+}
+
+/* Scanner Vidéo Temps Réel */
+.scanner-viewport {
+  position: relative;
+  width: 100%;
+  height: 290px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#scannerVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner-reticle {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 2px solid var(--cyber-green);
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 255, 102, 0.5);
+  pointer-events: none;
+}
+
+.scanner-laser {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--cyber-green);
+  box-shadow: 0 0 10px var(--cyber-green);
+  animation: scanLaser 2.2s infinite ease-in-out;
+}
+
+@keyframes scanLaser {
+  0%, 100% { top: 12px; }
+  50% { top: 184px; }
+}
+
+.scanner-status-msg {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 12px;
+  min-height: 18px;
+}
+
+.scanner-status-msg.error {
+  color: var(--alert-red);
+  font-weight: 600;
+}
+
+.scanner-status-msg.success {
+  color: var(--cyber-green);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   RESPONSIVE : NAVIGATION PAR PILES SUR ANDROID / MOBILE (< 768px)
+   ========================================================================== */
+@media (max-width: 767px) {
+  .sidebar-pane {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+  }
+
+  .chat-pane {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .app-workspace[data-mobile-view="chat"] .chat-pane {
+    transform: translateX(0);
+  }
+
+  .btn-mobile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .status-right .hide-mobile {
+    display: none;
+  }
+}
