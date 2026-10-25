@@ -1,7 +1,8 @@
 {
+  "id": "com.zerotrust.messenger",
   "name": "Zero Trust Messenger",
   "short_name": "ZT Messenger",
-  "description": "Messagerie chiffrée de bout en bout de niveau militaire.",
+  "description": "Messagerie instantanee chiffree de bout en bout de niveau militaire.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -19,6 +20,15 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Zero Trust Messenger Interface"
     }
   ]
 }
