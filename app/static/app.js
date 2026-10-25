@@ -1004,6 +1004,29 @@
       renderChatMessages();
     });
 
+  // Boutons d'action rapide de la page d'accueil Hero
+  const btnHeroScan = document.getElementById("btnHeroScan");
+  const btnHeroShowQr = document.getElementById("btnHeroShowQr");
+  const stepCard1 = document.getElementById("stepCard1");
+  const stepCard2 = document.getElementById("stepCard2");
+  const stepCard3 = document.getElementById("stepCard3");
+
+  if (btnHeroScan) {
+    btnHeroScan.addEventListener("click", openScannerModalAndRequestCamera);
+  }
+  if (btnHeroShowQr) {
+    btnHeroShowQr.addEventListener("click", openMyQrModal);
+  }
+  if (stepCard1) {
+    stepCard1.addEventListener("click", openMyQrModal);
+  }
+  if (stepCard2) {
+    stepCard2.addEventListener("click", openScannerModalAndRequestCamera);
+  }
+  if (stepCard3 && verifiedContacts.length > 0) {
+    stepCard3.addEventListener("click", () => selectContact(verifiedContacts[0].id));
+  }
+
   // Barre de recherche dans les contacts
   const contactSearchInput = document.getElementById("contactSearchInput");
   if (contactSearchInput) {

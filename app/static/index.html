@@ -130,24 +130,54 @@
     <!-- VOLET DROIT : FENÊTRE DE DISCUSSION -->
     <section class="chat-pane">
 
-      <!-- ÉCRAN D'ACCUEIL INITIAL SANS EMOJI -->
+      <!-- ÉCRAN D'ACCUEIL DASHBOARD INTERACTIF ET VISUEL -->
       <div id="zeroTrustLockScreen" class="zero-trust-lock-screen">
-        <h1 class="lock-title">Messagerie Sécurisée de Bout en Bout</h1>
-        <p class="lock-subtitle">
-          Pour démarrer une discussion, scannez le QR code de votre interlocuteur. Les échanges sont entièrement chiffrés directement sur vos appareils.
-        </p>
+        <div class="welcome-hero-card">
+          <div class="hero-badge-pill">Cryptographie Militaire Décentralisée</div>
+          <h1 class="hero-title">Zero Trust Messenger</h1>
+          <p class="hero-subtitle">
+            Aucun mot de passe, aucun numéro de téléphone, aucun serveur espion. Les messages sont scellés directement sur votre matériel.
+          </p>
+
+          <div class="hero-action-buttons">
+            <button id="btnHeroScan" class="btn-hero-primary">
+              <span>Scanner un Contact</span>
+            </button>
+            <button id="btnHeroShowQr" class="btn-hero-secondary">
+              <span>Afficher mon Identité</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STATUTS ET MÉTRIQUES EN DIRECT -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value">0%</div>
+            <div class="metric-label">Données sur serveur</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">256-bit</div>
+            <div class="metric-label">Chiffrement AES-GCM</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">P-256</div>
+            <div class="metric-label">Échange ECDH</div>
+          </div>
+        </div>
+
+        <!-- GUIDE INTERACTIF PAS À PAS -->
         <div class="lock-steps">
-          <div class="step-card">
-            <div class="step-num">Étape 1 // Clés Locales</div>
-            <div class="step-text">Votre paire de clés cryptographiques est créée et conservée uniquement sur votre appareil.</div>
+          <div class="step-card" id="stepCard1">
+            <div class="step-num">Étape 1 // Clés Générées Localement</div>
+            <div class="step-text">Vos clés privées sont créées dans votre appareil et ne le quittent jamais.</div>
           </div>
-          <div class="step-card">
-            <div class="step-num">Étape 2 // Échange de Clés</div>
-            <div class="step-text">Cliquez sur <strong>Afficher mon QR</strong> ou <strong>Scanner Contact</strong> pour appairer vos appareils.</div>
+          <div class="step-card" id="stepCard2">
+            <div class="step-num">Étape 2 // Échange QR Hors-Ligne</div>
+            <div class="step-text">Scannez le QR code de votre correspondant pour certifier son identité sans intermédiaire.</div>
           </div>
-          <div class="step-card">
-            <div class="step-num">Étape 3 // Canal Chiffré</div>
-            <div class="step-text">La liaison est vérifiée et vos messages sont transmis sans aucun accès possible par le serveur.</div>
+          <div class="step-card" id="stepCard3">
+            <div class="step-num">Étape 3 // Discussion Immédiate</div>
+            <div class="step-text">Le canal chiffré s'ouvre automatiquement. Vos échanges sont privés et sécurisés.</div>
           </div>
         </div>
       </div>
