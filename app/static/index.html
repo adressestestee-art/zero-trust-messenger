@@ -14,21 +14,22 @@
     ⚠️ Android exige le mode HTTPS pour demander l'autorisation Caméra. Appuyez ici pour basculer sur HTTPS (https://192.168.0.44:5050) →
   </div>
 
-  <!-- BARRE SUPÉRIEURE DE SÉCURITÉ ZERO TRUST -->
+  <!-- BARRE SUPÉRIEURE ÉPURÉE -->
   <header class="top-security-bar">
     <div class="status-left">
-      <span class="pulse-dot"></span>
-      <span>ZERO TRUST ENFORCED</span>
-      <span class="badge-pill">ECDH secp256r1 + AES-256-GCM</span>
-      <span id="relayStatusBadge" class="badge-pill badge-cyan">RELAIS AVEUGLE : CONNECTÉ</span>
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        <span>ZeroTrust Messenger</span>
+      </div>
+      <span class="badge-pill">E2EE Militaire</span>
+      <span id="relayStatusBadge" class="badge-pill badge-cyan">Cloud 24/7 Connecté</span>
     </div>
     <div class="status-right">
-      <span id="lanUrlDisplay" class="hide-mobile"></span>
-      <button id="btnShow4gQr" class="btn-ghost-xs" style="border-color: var(--cyber-cyan); color: var(--cyber-cyan);" title="Afficher le QR Code du lien 4G Cloudflare pour ouvrir l'application sur téléphone sans rien taper">
-        📱 QR Lien 4G
+      <button id="btnShow4gQr" class="btn-ghost-xs" title="Afficher le QR code pour ouvrir l'application sur smartphone">
+        📱 Ouvrir sur Mobile
       </button>
-      <button id="btnOpenSecondDevice" class="btn-ghost-xs" title="Ouvre un second appareil isolé pour tester le scan QR et le chat E2EE en direct">
-        + Ouvrir 2e Appareil (Test)
+      <button id="btnOpenSecondDevice" class="btn-ghost-xs" title="Tester le chat avec un second appareil">
+        + Tester 2e Appareil
       </button>
     </div>
   </header>
@@ -248,7 +249,7 @@
   <!-- Librairies QR locales (100% hors-ligne, zéro dépendance externe) -->
   <script src="/vendor/qrcode.min.js"></script>
   <script src="/vendor/jsQR.js"></script>
-  <script src="/crypto.js?v=2.4"></script>
-  <script src="/app.js?v=2.4"></script>
+  <script src="/crypto.js?v=2.5"></script>
+  <script src="/app.js?v=2.5"></script>
 </body>
 </html>
