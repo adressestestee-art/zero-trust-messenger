@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Introuvable — Zero Trust Messenger</title>
+  <link rel="icon" type="image/png" href="/icon-192.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .not-found-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-floating);
+      animation: fadeIn 0.3s ease;
+    }
+    .error-code {
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      color: var(--primary);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+    .error-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+    .error-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+    }
+    .btn-home:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="not-found-card">
+    <div class="error-code">404</div>
+    <div class="error-title">Page Introuvable</div>
+    <div class="error-desc">
+      Cette ressource n'existe pas ou le chemin demandé n'est pas autorisé par la politique Zero Trust.
+    </div>
+    <a href="/" class="btn-home">Retourner à la messagerie</a>
+  </div>
+</body>
+</html>

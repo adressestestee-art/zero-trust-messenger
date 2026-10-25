@@ -859,6 +859,63 @@ html, body {
   transform: scale(0.96);
 }
 
+/* BARRE DE RECHERCHE CONTACTS */
+.search-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text-main);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* BULLE DE MESSAGE CLIQUABLE POUR COPIER */
+.msg-bubble {
+  padding: 11px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 14.5px;
+  line-height: 1.45;
+  word-break: break-word;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.msg-bubble:active {
+  opacity: 0.85;
+}
+
+/* TOAST NOTIFICATION */
+.toast-notice {
+  position: absolute;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(15, 23, 42, 0.9);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.25s var(--ease-spring);
+  z-index: 50;
+  box-shadow: var(--shadow-md);
+}
+
+.toast-notice.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* MODALES POPUP DESIGN POLI */
 .modal-backdrop {
   position: fixed;

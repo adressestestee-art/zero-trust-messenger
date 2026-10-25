@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Zero Trust Messenger</title>
+  <link rel="icon" type="image/png" href="/icon-192.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -108,6 +110,11 @@
             Scanner Contact
           </button>
         </div>
+
+        <!-- BARRE DE RECHERCHE RAPIDE DANS LES CONTACTS -->
+        <div class="contacts-search-box" style="margin-top: 4px;">
+          <input type="text" id="contactSearchInput" placeholder="Rechercher un contact..." class="search-input" />
+        </div>
       </div>
 
       <div class="sidebar-section-title">
@@ -171,6 +178,9 @@
         <div id="chatMessagesArea" class="chat-messages-area">
           <!-- Messages chiffrés de bout en bout -->
         </div>
+
+        <!-- ZONE DE CONFIRMATION DE COPIE / ACTION -->
+        <div id="copyToastNotice" class="toast-notice">Texte copié dans le presse-papiers</div>
 
         <form id="chatComposerForm" class="chat-composer" autocomplete="off">
           <input

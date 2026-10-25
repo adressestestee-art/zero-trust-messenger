@@ -147,25 +147,32 @@
   }
 
   // =========================================================================
-  // 2. CONTACTS VÉRIFIÉS (KEYRING)
+  // 2. CONTACTS VÉRIFIÉS (KEYRING) & RECHERCHE
   // =========================================================================
+  let contactSearchQuery = "";
+
   function renderContactsList() {
     verifiedCountBadge.textContent = String(verifiedContacts.length);
     contactsListEl.innerHTML = "";
 
-    if (verifiedContacts.length === 0) {
+    const filtered = verifiedContacts.filter((c) =>
+      c.alias.toLowerCase().includes(contactSearchQuery.toLowerCase()) ||
+      c.fingerprint.toLowerCase().includes(contactSearchQuery.toLowerCase())
+    );
+
+    if (filtered.length === 0) {
       contactsListEl.innerHTML = `
         <div class="empty-contacts-box">
-          <div class="empty-contacts-title">Aucun contact vérifié</div>
+          <div class="empty-contacts-title">${contactSearchQuery ? "Aucun contact trouvé" : "Aucun contact vérifié"}</div>
           <div class="empty-contacts-desc">
-            Scannez le QR code d'un contact pour démarrer une conversation chiffrée.
+            ${contactSearchQuery ? "Modifiez votre recherche." : "Scannez le QR code d'un contact pour démarrer une conversation chiffrée."}
           </div>
         </div>
       `;
       return;
     }
 
-    verifiedContacts.forEach((contact) => {
+    filtered.forEach((contact) => {
       const item = document.createElement("div");
       item.className =
         "contact-item" + (contact.id === activeContactId ? " active" : "");
@@ -832,10 +839,31 @@
           ${statusIndicator}
         </div>
       `;
+
+      // Clic pour copier le message dans le presse-papiers
+      const bubble = row.querySelector(".msg-bubble");
+      if (bubble) {
+        bubble.addEventListener("click", () => {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(m.text).then(() => showToast("Texte copié")).catch(() => {});
+          }
+        });
+      }
+
       chatMessagesArea.appendChild(row);
     });
 
     chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById("copyToastNotice");
+    if (!toast) return;
+    toast.textContent = text;
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 1800);
   }
 
   async function fetchServerStatus() {
@@ -975,6 +1003,15 @@
       }`;
       renderChatMessages();
     });
+
+  // Barre de recherche dans les contacts
+  const contactSearchInput = document.getElementById("contactSearchInput");
+  if (contactSearchInput) {
+    contactSearchInput.addEventListener("input", (e) => {
+      contactSearchQuery = e.target.value;
+      renderContactsList();
+    });
+  }
 
   // Bouton de suppression de discussion
   const btnDeleteConversation = document.getElementById("btnDeleteConversation");

@@ -171,6 +171,11 @@ def index():
     return send_from_directory(app.static_folder, "index.html")
 
 
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, "404.html"), 404
+
+
 @app.route("/api/status", methods=["GET"])
 def status():
     lan_ip = get_lan_ip()
