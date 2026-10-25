@@ -1,5 +1,5 @@
 :root {
-  /* Design System Premium Mobile-First & Desktop Clair */
+  /* Palette Haute Définition "Clean Modern Slate" */
   --bg-app: #f8fafc;
   --bg-surface: #ffffff;
   --bg-subtle: #f1f5f9;
@@ -11,14 +11,14 @@
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-soft: #eff6ff;
-  --primary-active: #dbeafe;
+  --primary-glow: rgba(37, 99, 235, 0.2);
 
   --success: #059669;
   --success-soft: #ecfdf5;
   --success-border: #a7f3d0;
 
-  /* Messages */
-  --bubble-me: #2563eb;
+  /* Bulles de conversation */
+  --bubble-me: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   --bubble-me-text: #ffffff;
   --bubble-other: #ffffff;
   --bubble-other-text: #0f172a;
@@ -29,11 +29,11 @@
   --text-muted: #64748b;
   --text-sub: #94a3b8;
 
-  /* Ombres douces (Soft Depth) */
+  /* Ombres & Élévation */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-card: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-  --shadow-floating: 0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+  --shadow-sm: 0 2px 6px -1px rgba(0, 0, 0, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 8px 20px -3px rgba(15, 23, 42, 0.07), 0 3px 6px -2px rgba(15, 23, 42, 0.03);
+  --shadow-floating: 0 20px 35px -5px rgba(15, 23, 42, 0.12), 0 8px 12px -3px rgba(15, 23, 42, 0.04);
 
   /* Rayons */
   --radius-sm: 8px;
@@ -41,10 +41,13 @@
   --radius-lg: 18px;
   --radius-pill: 9999px;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, -apple-system-subheadline, sans-serif;
+  /* Courbes d'animation fluides iOS / Material */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", Consolas, monospace;
 
-  /* Safe Area Mobile pour encoches iPhone / barre Android */
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
@@ -67,21 +70,104 @@ html, body {
 }
 
 /* ==========================================================================
-   BARRE SUPÉRIEURE (HEADER) & MENU BURGER MOBILE
+   BARRE SUPÉRIEURE FLOTTANTE AVEC EFFET DE VERRE
    ========================================================================== */
 .top-security-bar {
-  height: calc(52px + var(--sat));
+  height: calc(54px + var(--sat));
   padding-top: var(--sat);
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 16px;
-  padding-right: 16px;
-  z-index: 20;
+  padding-left: 20px;
+  padding-right: 20px;
+  z-index: 30;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.3s ease;
 }
 
+.status-left, .status-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: -0.3px;
+  color: var(--text-main);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  box-shadow: 0 0 0 rgba(5, 150, 105, 0.4);
+  animation: pulseRipple 2.2s infinite;
+}
+
+@keyframes pulseRipple {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+}
+
+.badge-pill {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.badge-cyan {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: #bfdbfe;
+}
+
+.btn-ghost-xs {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-ghost-xs:hover {
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-ghost-xs:active {
+  transform: scale(0.96);
+}
+
+/* ==========================================================================
+   MENU BURGER MODERNE (3 BARRES DYNAMIQUES)
+   ========================================================================== */
 .mobile-menu-trigger {
   display: none;
 }
@@ -89,8 +175,8 @@ html, body {
 .btn-burger {
   background: transparent;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -98,11 +184,12 @@ html, body {
   gap: 5px;
   cursor: pointer;
   border-radius: var(--radius-sm);
-  padding: 8px;
+  transition: all 0.2s ease;
 }
 
 .btn-burger:active {
   background: var(--bg-subtle);
+  transform: scale(0.92);
 }
 
 .burger-bar {
@@ -110,19 +197,20 @@ html, body {
   height: 2px;
   background-color: var(--text-main);
   border-radius: 2px;
-  transition: all 0.2s ease;
+  transition: all 0.25s var(--ease-smooth);
 }
 
-/* TIROIR MOBILE (DRAWER) */
+/* MENU TIROIR (DRAWER FLOU ET GLISSANT) */
 .drawer-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 100;
   display: none;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease;
 }
 
 .drawer-backdrop.open {
@@ -135,14 +223,15 @@ html, body {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 280px;
+  width: 300px;
+  max-width: 85%;
   background: #ffffff;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
-  padding: calc(20px + var(--sat)) 20px 20px;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.1);
+  padding: calc(24px + var(--sat)) 20px 24px;
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.32s var(--ease-smooth);
 }
 
 .drawer-backdrop.open .drawer-panel {
@@ -158,118 +247,61 @@ html, body {
 
 .drawer-title {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-main);
+  letter-spacing: -0.2px;
 }
 
 .drawer-status-card {
   background: var(--bg-subtle);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 12px;
-  margin-bottom: 20px;
+  padding: 14px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-xs);
 }
 
 .drawer-actions-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .drawer-action-item {
   width: 100%;
   text-align: left;
-  padding: 12px 14px;
-  background: var(--bg-subtle);
+  padding: 14px 16px;
+  background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-main);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s var(--ease-smooth);
+  box-shadow: var(--shadow-xs);
 }
 
 .drawer-action-item:active {
-  background: var(--bg-hover);
-  transform: scale(0.98);
-}
-
-.status-left, .status-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: -0.3px;
-  color: var(--text-main);
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-  display: inline-block;
-}
-
-.badge-pill {
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--success-soft);
-  color: var(--success);
-  border: 1px solid var(--success-border);
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.badge-cyan {
-  background: var(--primary-soft);
-  color: var(--primary);
-  border-color: #bfdbfe;
-}
-
-.btn-ghost-xs {
   background: var(--bg-subtle);
-  color: var(--text-muted);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-pill);
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-ghost-xs:active {
-  background: var(--bg-hover);
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 /* ==========================================================================
-   ESPACE DE TRAVAIL & VUES MOBILE
+   ESPACE DE TRAVAIL & DISPOSITION
    ========================================================================== */
 .app-workspace {
   display: flex;
-  height: calc(100% - (52px + var(--sat)));
+  height: calc(100% - (54px + var(--sat)));
   width: 100%;
   position: relative;
   background: var(--bg-app);
 }
 
-/* SIDEBAR / ÉCRAN PRINCIPAL DES CONTACTS */
+/* SIDEBAR CONTACTS */
 .sidebar-pane {
   width: 360px;
-  min-width: 300px;
+  min-width: 320px;
   background: var(--bg-surface);
   border-right: 1px solid var(--border-light);
   display: flex;
@@ -279,18 +311,20 @@ html, body {
 }
 
 .identity-header {
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg-app) 100%);
 }
 
 .identity-card {
-  background: var(--bg-subtle);
+  background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 14px;
+  box-shadow: var(--shadow-xs);
 }
 
 .identity-row {
@@ -313,8 +347,13 @@ html, body {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+
+.btn-edit-alias:hover {
+  background: var(--primary-soft);
 }
 
 .identity-meta {
@@ -329,7 +368,7 @@ html, body {
   font-weight: 600;
 }
 
-/* GRILLE BOUTONS D'ACTION MOBILES */
+/* BOUTONS D'ACTION QR ANIMÉS */
 .qr-action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -345,7 +384,7 @@ html, body {
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s var(--ease-smooth);
   border: 1px solid transparent;
   user-select: none;
 }
@@ -353,27 +392,37 @@ html, body {
 .btn-qr-primary {
   background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.btn-qr-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
 }
 
 .btn-qr-primary:active {
-  background: var(--primary-hover);
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .btn-qr-secondary {
-  background: var(--bg-subtle);
+  background: var(--bg-surface);
   color: var(--text-main);
   border-color: var(--border-light);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-qr-secondary:hover {
+  background: var(--bg-subtle);
+  transform: translateY(-1px);
 }
 
 .btn-qr-secondary:active {
-  background: var(--bg-hover);
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .sidebar-section-title {
-  padding: 14px 16px 8px;
+  padding: 16px 18px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -402,6 +451,7 @@ html, body {
   text-align: center;
   padding: 48px 24px;
   color: var(--text-muted);
+  animation: fadeIn 0.4s ease;
 }
 
 .empty-contacts-title {
@@ -421,41 +471,49 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 12px 14px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s var(--ease-smooth);
   user-select: none;
   background: var(--bg-surface);
   border: 1px solid transparent;
+  box-shadow: var(--shadow-xs);
+}
+
+.contact-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .contact-item:active {
-  background: var(--bg-subtle);
-  transform: scale(0.99);
+  transform: scale(0.98);
 }
 
 .contact-item.active {
   background: var(--primary-soft);
   border-color: #bfdbfe;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
 }
 
 .contact-avatar {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-pill);
-  background: #e2e8f0;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-main);
   flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
 }
 
 .contact-item.active .contact-avatar {
-  background: var(--primary);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
 }
 
@@ -494,8 +552,9 @@ html, body {
   color: #ffffff;
   font-weight: 700;
   font-size: 11px;
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
 
 .verified-tag {
@@ -524,14 +583,15 @@ html, body {
   justify-content: center;
   text-align: center;
   padding: 32px 20px;
-  max-width: 480px;
+  max-width: 500px;
   margin: 0 auto;
+  animation: fadeIn 0.3s ease;
 }
 
 .lock-title {
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
   margin-bottom: 8px;
   color: var(--text-main);
 }
@@ -540,13 +600,13 @@ html, body {
   font-size: 13.5px;
   color: var(--text-muted);
   line-height: 1.5;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .lock-steps {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -554,12 +614,18 @@ html, body {
   background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 16px;
   text-align: left;
   display: flex;
   flex-direction: column;
   gap: 4px;
   box-shadow: var(--shadow-xs);
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .step-num {
@@ -582,6 +648,7 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  animation: fadeIn 0.25s ease-out;
 }
 
 .chat-header {
@@ -591,14 +658,15 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   z-index: 5;
+  box-shadow: var(--shadow-xs);
 }
 
 .chat-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .btn-mobile-back {
@@ -607,10 +675,15 @@ html, body {
   color: var(--primary);
   border: none;
   border-radius: var(--radius-pill);
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-mobile-back:active {
+  transform: scale(0.95);
 }
 
 .chat-contact-title {
@@ -631,35 +704,42 @@ html, body {
 .chat-messages-area {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   -webkit-overflow-scrolling: touch;
 }
 
 .system-crypto-notice {
   text-align: center;
-  padding: 6px 14px;
-  margin: 4px auto 12px;
-  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 16px;
+  margin: 4px auto 14px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
   font-size: 11.5px;
   color: var(--text-muted);
+  box-shadow: var(--shadow-xs);
 }
 
-/* BULLES DE CHAT ÉLÉGANTES */
+/* BULLES DE CHAT AVEC ANIMATION D'APPARITION */
 .msg-row {
   display: flex;
   flex-direction: column;
-  max-width: 78%;
-  animation: fadeIn 0.15s ease-out;
+  max-width: 76%;
+  animation: messageSlideIn 0.22s var(--ease-spring);
+}
+
+@keyframes messageSlideIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .msg-row.outgoing {
@@ -673,17 +753,19 @@ html, body {
 }
 
 .msg-bubble {
-  padding: 10px 14px;
+  padding: 11px 16px;
   border-radius: var(--radius-lg);
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.45;
   word-break: break-word;
+  transition: all 0.15s ease;
 }
 
 .msg-row.outgoing .msg-bubble {
   background: var(--bubble-me);
   color: var(--bubble-me-text);
   border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .msg-row.incoming .msg-bubble {
@@ -715,18 +797,18 @@ html, body {
   gap: 6px;
   font-size: 10.5px;
   color: var(--text-sub);
-  margin-top: 3px;
+  margin-top: 4px;
   padding: 0 4px;
 }
 
-/* COMPOSER DE SAISIE MODERNE & ADAPTÉ MOBILE */
+/* ZONE DE SAISIE MODERNE AVEC FOCUS DOUX */
 .chat-composer {
-  padding: 10px 16px calc(10px + var(--sab));
+  padding: 12px 20px calc(12px + var(--sab));
   background: var(--bg-surface);
   border-top: 1px solid var(--border-light);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .chat-input {
@@ -734,18 +816,19 @@ html, body {
   background: var(--bg-subtle);
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
-  padding: 12px 18px;
+  padding: 12px 20px;
   color: var(--text-main);
-  font-size: 15px;
+  font-size: 14.5px;
   font-family: inherit;
   outline: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   min-height: 44px;
 }
 
 .chat-input:focus {
   background: #ffffff;
   border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
 .btn-send {
@@ -753,34 +836,42 @@ html, body {
   color: #ffffff;
   border: none;
   border-radius: var(--radius-pill);
-  padding: 12px 20px;
+  padding: 12px 22px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition: all 0.2s var(--ease-smooth);
   flex-shrink: 0;
   min-height: 44px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.btn-send:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 .btn-send:active {
-  background: var(--primary-hover);
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
-/* MODALES POLIES POUR MOBILE */
+/* MODALES POPUP DESIGN POLI */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 100;
   padding: 16px;
+  animation: fadeIn 0.2s ease;
 }
 
 .modal-backdrop.open {
@@ -792,66 +883,80 @@ html, body {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
+  max-width: 410px;
+  padding: 24px;
   box-shadow: var(--shadow-floating);
   display: flex;
   flex-direction: column;
+  animation: modalScale 0.25s var(--ease-spring);
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .modal-title {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 16.5px;
   color: var(--text-main);
+  letter-spacing: -0.2px;
 }
 
 .btn-close-modal {
   background: var(--bg-subtle);
   border: none;
   color: var(--text-muted);
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-close-modal:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
 }
 
 .qr-display-wrapper {
   background: #ffffff;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 14px;
+  margin: 0 auto 16px;
+  box-shadow: var(--shadow-sm);
 }
 
 .qr-fingerprint-box {
   background: var(--bg-subtle);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   line-height: 1.5;
 }
 
 .modal-actions-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .btn-modal-action {
   flex: 1;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: var(--radius-md);
   background: var(--bg-subtle);
   border: 1px solid var(--border-light);
@@ -863,10 +968,12 @@ html, body {
   align-items: center;
   justify-content: center;
   min-height: 44px;
+  transition: all 0.15s ease;
 }
 
 .btn-modal-action:active {
   background: var(--bg-hover);
+  transform: scale(0.97);
 }
 
 /* SCANNER CAMÉRA */
@@ -877,7 +984,7 @@ html, body {
   background: #000;
   border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -894,16 +1001,32 @@ html, body {
   width: 65%;
   height: 65%;
   border: 2px solid var(--primary);
-  border-radius: 10px;
-  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.45);
   pointer-events: none;
+}
+
+.scanner-laser {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+  animation: laserScan 2.4s infinite ease-in-out;
+}
+
+@keyframes laserScan {
+  0%, 100% { top: 5%; opacity: 0.7; }
+  50% { top: 95%; opacity: 1; }
 }
 
 .scanner-status-msg {
   font-size: 12.5px;
   color: var(--text-muted);
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .scanner-status-msg.error {
@@ -916,7 +1039,7 @@ html, body {
 }
 
 /* ==========================================================================
-   OPTIMISATIONS SMARTPHONE SPÉCIFIQUES (TACTILE & NAVIGATION)
+   RESPONSIVE MOBILE FLUIDE
    ========================================================================== */
 @media (max-width: 768px) {
   .hide-mobile {
@@ -924,6 +1047,10 @@ html, body {
   }
   .mobile-menu-trigger {
     display: block;
+  }
+  .top-security-bar {
+    padding-left: 16px;
+    padding-right: 12px;
   }
   .app-workspace {
     position: relative;
@@ -933,7 +1060,7 @@ html, body {
     position: absolute;
     inset: 0;
     width: 100%;
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.28s var(--ease-smooth);
   }
   .app-workspace[data-mobile-view="contacts"] .sidebar-pane {
     transform: translateX(0);
