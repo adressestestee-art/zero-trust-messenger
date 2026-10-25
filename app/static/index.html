@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Zero Trust Messenger</title>
   <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ZT Messenger" />
+  <meta name="theme-color" content="#ffffff" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -280,5 +285,12 @@
   <script src="/vendor/jsQR.js"></script>
   <script src="/crypto.js?v=2.7"></script>
   <script src="/app.js?v=2.7"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
