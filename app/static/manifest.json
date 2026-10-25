@@ -3,11 +3,28 @@
   "name": "Zero Trust Messenger",
   "short_name": "ZT Messenger",
   "description": "Messagerie instantanee chiffree de bout en bout de niveau militaire.",
+  "lang": "fr",
+  "dir": "ltr",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "orientation": "portrait-primary",
+  "categories": [
+    "social",
+    "security",
+    "productivity"
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
@@ -29,6 +46,34 @@
       "type": "image/png",
       "form_factor": "wide",
       "label": "Zero Trust Messenger Interface"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scanner un contact",
+      "short_name": "Scanner",
+      "description": "Scanner un QR code de contact de maniere securisee",
+      "url": "/?action=scan",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Mon QR Code",
+      "short_name": "Mon QR",
+      "description": "Afficher mon identite chiffree",
+      "url": "/?action=myqr",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
