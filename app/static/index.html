@@ -21,10 +21,12 @@
         <span class="pulse-dot"></span>
         <span>ZeroTrust Messenger</span>
       </div>
-      <span class="badge-pill">E2EE Chiffré</span>
-      <span id="relayStatusBadge" class="badge-pill badge-cyan">Relais Connecté</span>
+      <span class="badge-pill hide-mobile">E2EE Chiffré</span>
+      <span id="relayStatusBadge" class="badge-pill badge-cyan hide-mobile">Relais Connecté</span>
     </div>
-    <div class="status-right">
+
+    <!-- BOUTONS DESKTOP -->
+    <div class="status-right hide-mobile">
       <button id="btnShow4gQr" class="btn-ghost-xs" title="Afficher le QR code pour ouvrir l'application sur smartphone">
         Ouvrir sur Mobile
       </button>
@@ -32,7 +34,46 @@
         Tester 2e Appareil
       </button>
     </div>
+
+    <!-- BOUTON MENU BURGER 3 BARRES (VISIBLE SUR MOBILE) -->
+    <div class="mobile-menu-trigger">
+      <button id="btnToggleMobileMenu" class="btn-burger" aria-label="Menu des options">
+        <span class="burger-bar"></span>
+        <span class="burger-bar"></span>
+        <span class="burger-bar"></span>
+      </button>
+    </div>
   </header>
+
+  <!-- MENU TIROIR LATÉRAL MOBILE (SLIDE-OVER MENU) -->
+  <div id="mobileDrawerBackdrop" class="drawer-backdrop">
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <span class="drawer-title">Options de l'Application</span>
+        <button id="btnCloseMobileDrawer" class="btn-close-modal">Fermer</button>
+      </div>
+
+      <div class="drawer-status-card">
+        <div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">État de la Sécurité :</div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <span class="badge-pill">E2EE Chiffré</span>
+          <span class="badge-pill badge-cyan">Relais Connecté</span>
+        </div>
+      </div>
+
+      <div class="drawer-actions-list">
+        <button id="btnEnableNotifications" class="drawer-action-item">
+          <span>Activer les Notifications Push</span>
+        </button>
+        <button id="btnDrawerShow4gQr" class="drawer-action-item">
+          <span>Ouvrir sur un autre Mobile (QR)</span>
+        </button>
+        <button id="btnDrawerOpenSecondDevice" class="drawer-action-item">
+          <span>Ouvrir un 2e Profil de Test</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ESPACE DE TRAVAIL ADAPTATIF -->
   <main class="app-workspace" id="appWorkspace" data-mobile-view="contacts">
@@ -112,7 +153,10 @@
               <div id="activeContactFp" class="chat-crypto-sub">Empreinte : ...</div>
             </div>
           </div>
-          <div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="btnDeleteConversation" class="btn-ghost-xs" style="color: #ef4444; border-color: #fca5a5;" title="Supprimer cette discussion et son historique">
+              Supprimer
+            </button>
             <button id="btnToggleCipherInspector" class="btn-ghost-xs">
               Inspecteur : ON
             </button>
@@ -234,7 +278,7 @@
 
   <script src="/vendor/qrcode.min.js"></script>
   <script src="/vendor/jsQR.js"></script>
-  <script src="/crypto.js?v=2.6"></script>
-  <script src="/app.js?v=2.6"></script>
+  <script src="/crypto.js?v=2.7"></script>
+  <script src="/app.js?v=2.7"></script>
 </body>
 </html>

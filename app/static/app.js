@@ -499,6 +499,52 @@
     } catch (_) {}
   }
 
+  async function sendEncryptedReadReceipt(targetContact, readMsgId, readSeq) {
+    try {
+      outgoingSeqCounter += 1;
+      const seq = outgoingSeqCounter;
+      const payload = {
+        type: "CHAT_READ_RECEIPT",
+        readMsgId: readMsgId,
+        readSeq: readSeq,
+        senderId: myIdentity.deviceId,
+        ts: Date.now(),
+      };
+      const envelope = await window.ztCrypto.encryptMessage(
+        myIdentity,
+        targetContact,
+        seq,
+        payload
+      );
+      await fetch("/api/relay/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_mailbox: targetContact.mailbox,
+          packet: {
+            sender_id: myIdentity.deviceId,
+            envelope,
+            ts: Date.now(),
+          },
+        }),
+      });
+    } catch (_) {}
+  }
+
+  function showPushNotification(senderName, messageText) {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      try {
+        const preview = messageText && messageText.length > 30 ? messageText.slice(0, 30) + "..." : messageText;
+        new Notification("Nouveau message sécurisé", {
+          body: `${senderName}: ${preview}`,
+          icon: "/favicon.ico",
+          badge: "/favicon.ico",
+        });
+      } catch (_) {}
+    }
+  }
+
   async function sendEncryptedChatMessage(text) {
     const contact = verifiedContacts.find((c) => c.id === activeContactId);
     if (!contact || !text.trim()) return;
@@ -513,6 +559,7 @@
 
     const payload = {
       type: "CHAT_MSG",
+      msgId: "msg-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
       text: cleanText,
       senderId: myIdentity.deviceId,
       senderAlias: myIdentity.alias,
@@ -528,11 +575,12 @@
     );
 
     const msgEntry = {
-      id: "msg-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+      id: payload.msgId,
       senderId: myIdentity.deviceId,
       text: cleanText,
       ts: Date.now(),
       outgoing: true,
+      status: "sent",
       seq: seq,
       cipherMeta: {
         eph_x: envelope.eph_x.slice(0, 14) + "...",
@@ -662,14 +710,30 @@
         return;
       }
 
+      if (decrypted.type === "CHAT_READ_RECEIPT" && senderContact) {
+        const targetMsgId = decrypted.readMsgId;
+        const contactMsgs = messagesByContact[senderContact.id] || [];
+        const msg = contactMsgs.find((m) => m.id === targetMsgId || (decrypted.readSeq && m.seq === decrypted.readSeq));
+        if (msg && msg.outgoing) {
+          msg.status = "read";
+          saveState();
+          if (activeContactId === senderContact.id) {
+            renderChatMessages();
+          }
+        }
+        return;
+      }
+
       if (decrypted.type === "CHAT_MSG" && senderContact) {
         const seq = envelope.seq || 0;
+        const incomingMsgId = decrypted.msgId || ("msg-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6));
         const msgEntry = {
-          id: "msg-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+          id: incomingMsgId,
           senderId: senderContact.id,
           text: decrypted.text,
           ts: decrypted.ts || Date.now(),
           outgoing: false,
+          status: "read",
           seq: seq,
           cipherMeta: {
             eph_x: (envelope.eph_x || "").slice(0, 14) + "...",
@@ -684,6 +748,12 @@
           messagesByContact[senderContact.id] = [];
         }
         messagesByContact[senderContact.id].push(msgEntry);
+
+        // Envoyer automatiquement un accusé de lecture chiffré E2EE sans fuite
+        sendEncryptedReadReceipt(senderContact, incomingMsgId, seq);
+
+        // Déclencher une notification système si l'application est en arrière-plan
+        showPushNotification(senderContact.alias, decrypted.text);
 
         if (!activeContactId) {
           selectContact(senderContact.id);
@@ -741,6 +811,15 @@
         `;
       }
 
+      let statusIndicator = "";
+      if (m.outgoing) {
+        if (m.status === "read") {
+          statusIndicator = `<span style="color: var(--primary); font-weight: 700; margin-left: 4px;">Vu</span>`;
+        } else {
+          statusIndicator = `<span style="color: var(--text-sub); margin-left: 4px;">Envoyé</span>`;
+        }
+      }
+
       row.innerHTML = `
         <div class="msg-bubble">${escapeHtml(m.text)}</div>
         ${cipherHtml}
@@ -750,6 +829,7 @@
           <span>${timeStr}</span>
           <span>•</span>
           <span style="color: #059669; font-weight: 600;">Chiffré AES-256</span>
+          ${statusIndicator}
         </div>
       `;
       chatMessagesArea.appendChild(row);
@@ -896,9 +976,87 @@
       renderChatMessages();
     });
 
+  // Bouton de suppression de discussion
+  const btnDeleteConversation = document.getElementById("btnDeleteConversation");
+  if (btnDeleteConversation) {
+    btnDeleteConversation.addEventListener("click", () => {
+      if (!activeContactId) return;
+      const contact = verifiedContacts.find((c) => c.id === activeContactId);
+      const name = contact ? contact.alias : "ce contact";
+      if (confirm(`Voulez-vous supprimer définitivement la discussion avec ${name} et son historique local ?`)) {
+        delete messagesByContact[activeContactId];
+        saveState();
+        renderChatMessages();
+      }
+    });
+  }
+
+  // Bouton d'activation des notifications système
+  const btnEnableNotifications = document.getElementById("btnEnableNotifications");
+  if (btnEnableNotifications) {
+    btnEnableNotifications.addEventListener("click", async () => {
+      if (!("Notification" in window)) {
+        alert("Les notifications ne sont pas prises en charge par ce navigateur.");
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm === "granted") {
+        alert("Notifications activées avec succès !");
+      } else {
+        alert("Autorisation de notification refusée.");
+      }
+    });
+  }
+
   document.getElementById("btnMobileBack").addEventListener("click", () => {
     appWorkspace.setAttribute("data-mobile-view", "contacts");
   });
+
+  // Gestion du menu burger mobile (tiroir 3 barres)
+  const mobileDrawerBackdrop = document.getElementById("mobileDrawerBackdrop");
+  const btnToggleMobileMenu = document.getElementById("btnToggleMobileMenu");
+  const btnCloseMobileDrawer = document.getElementById("btnCloseMobileDrawer");
+  const btnDrawerShow4gQr = document.getElementById("btnDrawerShow4gQr");
+  const btnDrawerOpenSecondDevice = document.getElementById("btnDrawerOpenSecondDevice");
+
+  if (btnToggleMobileMenu && mobileDrawerBackdrop) {
+    btnToggleMobileMenu.addEventListener("click", () => {
+      mobileDrawerBackdrop.classList.add("open");
+    });
+  }
+
+  if (btnCloseMobileDrawer && mobileDrawerBackdrop) {
+    btnCloseMobileDrawer.addEventListener("click", () => {
+      mobileDrawerBackdrop.classList.remove("open");
+    });
+  }
+
+  if (mobileDrawerBackdrop) {
+    mobileDrawerBackdrop.addEventListener("click", (e) => {
+      if (e.target === mobileDrawerBackdrop) {
+        mobileDrawerBackdrop.classList.remove("open");
+      }
+    });
+  }
+
+  if (btnDrawerShow4gQr) {
+    btnDrawerShow4gQr.addEventListener("click", () => {
+      if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.remove("open");
+      open4gUrlQrModal();
+    });
+  }
+
+  if (btnDrawerOpenSecondDevice) {
+    btnDrawerOpenSecondDevice.addEventListener("click", () => {
+      if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.remove("open");
+      const nextDev = deviceNamespace === "PRIMARY" ? "B" : "C";
+      window.open(
+        `/?device=${nextDev}`,
+        "_blank",
+        "width=980,height=720,menubar=no,toolbar=no"
+      );
+    });
+  }
 
   document
     .getElementById("btnOpenSecondDevice")
