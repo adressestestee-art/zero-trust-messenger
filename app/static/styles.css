@@ -1,21 +1,31 @@
 /**
- * Zero Trust Messenger — Interface Épurée Haute Définition
- * Style sobre, moderne et minimaliste (Dark Slate / Deep Blue)
- * Zéro Artifice, Zéro Emoji.
+ * Zero Trust Messenger — Palette Chaude, Lumineuse & Épurée
+ * Ambiance : Lin chaud, sable doux, blanc cassé et accents terracotta / ambre.
+ * Zéro Artifice, Zéro Emoji, Lisibilité maximale.
  */
 
 :root {
-  --bg-main: #0a0e17;
-  --bg-sidebar: #0f1523;
-  --bg-card: #141c2e;
-  --bg-bubble-recv: #192338;
-  --accent-blue: #2563eb;
-  --accent-blue-hover: #1d4ed8;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-light: #1e293b;
-  --border-active: #334155;
+  --bg-main: #fbf9f5;
+  --bg-sidebar: #f3ede2;
+  --bg-card: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-bubble-recv: #ffffff;
+  
+  --accent-warm: #c85a2b;
+  --accent-warm-hover: #b34d20;
+  --accent-gradient: linear-gradient(135deg, #dc6b3f, #b94e22);
+  
+  --text-primary: #292524;
+  --text-secondary: #78716c;
+  --text-muted: #a8a29e;
+  
+  --border-light: #e7e0d4;
+  --border-active: #d6ccbe;
+  --border-focus: #c85a2b;
+  
+  --shadow-sm: 0 2px 8px rgba(90, 65, 45, 0.05);
+  --shadow-md: 0 8px 24px rgba(90, 65, 45, 0.08);
+  
   --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --sab: env(safe-area-inset-bottom, 0px);
   --sat: env(safe-area-inset-top, 0px);
@@ -40,7 +50,7 @@ html, body {
 }
 
 /* ==========================================================================
-   EN-TÊTE PRINCIPAL
+   EN-TÊTE SUPÉRIEUR CHAUD & CLAIR
    ========================================================================== */
 .app-header {
   height: 52px;
@@ -70,8 +80,8 @@ html, body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  background: var(--accent-warm);
+  box-shadow: 0 0 6px rgba(200, 90, 43, 0.4);
 }
 
 .brand-text {
@@ -81,10 +91,10 @@ html, body {
   color: var(--text-primary);
 }
 
-/* ONGLETS PILLS */
+/* ONGLETS PILLS CHAUDS */
 .nav-pill-tabs {
   display: flex;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   padding: 3px;
   border-radius: 20px;
   gap: 2px;
@@ -111,12 +121,13 @@ html, body {
 }
 
 .tab-pill.active {
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #ffffff;
+  box-shadow: 0 2px 6px rgba(200, 90, 43, 0.25);
 }
 
 .unread-pill-badge {
-  background: #ef4444;
+  background: #dc2626;
   color: #ffffff;
   font-size: 10px;
   padding: 1px 6px;
@@ -141,7 +152,7 @@ html, body {
 }
 
 .btn-subtle {
-  background: transparent;
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
   color: var(--text-secondary);
   font-size: 12px;
@@ -196,7 +207,7 @@ html, body {
 }
 
 /* ==========================================================================
-   VUE 1 : PROFIL & QR CODE ÉPURÉ
+   VUE 1 : PROFIL & QR CODE ÉPURÉ (AMBIAUCE CHAUDE ET CLAIRE)
    ========================================================================== */
 .profile-page-wrapper {
   width: 100%;
@@ -213,7 +224,7 @@ html, body {
 .profile-card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 28px 24px;
   max-width: 360px;
   width: 100%;
@@ -221,22 +232,22 @@ html, body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .profile-avatar-circle {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  background: var(--accent-gradient);
   color: #ffffff;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 14px rgba(200, 90, 43, 0.3);
 }
 
 .profile-user-info {
@@ -253,7 +264,7 @@ html, body {
 .btn-text-edit {
   background: transparent;
   border: none;
-  color: var(--accent-blue);
+  color: var(--accent-warm);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -266,8 +277,9 @@ html, body {
 .qr-card-surface {
   background: #ffffff;
   padding: 14px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 24px;
 }
 
@@ -284,7 +296,7 @@ html, body {
 
 .btn-action-primary {
   width: 100%;
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #ffffff;
   border: none;
   padding: 12px;
@@ -293,21 +305,22 @@ html, body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
+  box-shadow: 0 2px 6px rgba(200, 90, 43, 0.2);
 }
 
 .btn-action-primary:hover {
-  background: var(--accent-blue-hover);
+  background: var(--accent-warm-hover);
 }
 
 .btn-action-secondary {
   width: 100%;
-  background: transparent;
+  background: var(--bg-card);
   color: var(--text-secondary);
   border: 1px solid var(--border-light);
   padding: 10px;
   border-radius: 10px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -315,19 +328,21 @@ html, body {
 .btn-action-secondary:hover {
   color: var(--text-primary);
   border-color: var(--border-active);
+  background: #fcfbf9;
 }
 
-/* SCANNER SECTION INTÉGRÉE */
+/* SECTION SCANNER */
 .scanner-section {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 18px;
   max-width: 360px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: var(--shadow-md);
 }
 
 .scanner-header-row {
@@ -341,6 +356,7 @@ html, body {
 .scanner-title {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .btn-text-close {
@@ -354,9 +370,9 @@ html, body {
 .scanner-viewport {
   width: 240px;
   height: 240px;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  background: #000;
+  background: #1c1917;
   position: relative;
   margin-bottom: 12px;
 }
@@ -370,8 +386,8 @@ html, body {
 .scanner-frame-overlay {
   position: absolute;
   inset: 20px;
-  border: 2px dashed rgba(37, 99, 235, 0.8);
-  border-radius: 8px;
+  border: 2px dashed rgba(200, 90, 43, 0.9);
+  border-radius: 10px;
   pointer-events: none;
 }
 
@@ -387,7 +403,7 @@ html, body {
 }
 
 /* ==========================================================================
-   VUE 2 : DISCUSSIONS & MESSAGERIE
+   VUE 2 : DISCUSSIONS & MESSAGERIE (CLAIRE & CHAUDE)
    ========================================================================== */
 .chats-layout {
   display: flex;
@@ -415,17 +431,18 @@ html, body {
 
 .search-input-sleek {
   width: 100%;
-  background: var(--bg-main);
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 8px 12px;
   color: var(--text-primary);
   font-size: 13px;
   outline: none;
+  transition: border-color 0.15s ease;
 }
 
 .search-input-sleek:focus {
-  border-color: var(--accent-blue);
+  border-color: var(--border-focus);
 }
 
 .contacts-feed {
@@ -445,26 +462,27 @@ html, body {
   padding: 10px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.12s ease;
+  transition: all 0.12s ease;
   user-select: none;
 }
 
 .contact-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .contact-row.active {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .contact-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--bg-card);
+  background: #ede6da;
   border: 1px solid var(--border-light);
-  color: var(--accent-blue);
+  color: var(--accent-warm);
   font-weight: 700;
   font-size: 14px;
   display: flex;
@@ -474,7 +492,7 @@ html, body {
 }
 
 .contact-row.active .contact-avatar {
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #ffffff;
 }
 
@@ -500,15 +518,15 @@ html, body {
 }
 
 .contact-sub {
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 11.5px;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .unread-count {
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -523,12 +541,13 @@ html, body {
 
 .btn-sidebar-add {
   width: 100%;
-  background: transparent;
-  border: 1px dashed var(--border-light);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   color: var(--text-secondary);
   padding: 8px;
   border-radius: 8px;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -566,21 +585,23 @@ html, body {
 .empty-platform-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  color: var(--accent-blue);
+  color: var(--accent-warm);
   font-size: 12px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
 .empty-headline {
   font-size: 17px;
   font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
@@ -594,8 +615,8 @@ html, body {
 .empty-status-tag {
   display: inline-block;
   font-size: 11px;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent-warm);
+  background: rgba(200, 90, 43, 0.08);
   padding: 4px 12px;
   border-radius: 12px;
   font-weight: 600;
@@ -648,7 +669,7 @@ html, body {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #fff;
   font-weight: 700;
   display: flex;
@@ -660,15 +681,16 @@ html, body {
 .header-user-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .header-user-status {
   font-size: 11px;
-  color: #10b981;
+  color: var(--accent-warm);
 }
 
 .btn-icon-clear {
-  background: transparent;
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
   color: var(--text-muted);
   font-size: 11px;
@@ -679,8 +701,8 @@ html, body {
 }
 
 .btn-icon-clear:hover {
-  color: #ef4444;
-  border-color: #ef4444;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 /* FLUX DE MESSAGES */
@@ -711,16 +733,17 @@ html, body {
 }
 
 .chat-bubble {
-  padding: 9px 13px;
+  padding: 10px 14px;
   border-radius: 14px;
   font-size: 13.5px;
   line-height: 1.45;
   word-break: break-word;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(90, 65, 45, 0.05);
 }
 
 .chat-bubble-row.outgoing .chat-bubble {
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #ffffff;
   border-bottom-right-radius: 3px;
 }
@@ -728,6 +751,7 @@ html, body {
 .chat-bubble-row.incoming .chat-bubble {
   background: var(--bg-bubble-recv);
   color: var(--text-primary);
+  border: 1px solid var(--border-light);
   border-bottom-left-radius: 3px;
 }
 
@@ -741,7 +765,7 @@ html, body {
 }
 
 .status-vu {
-  color: #38bdf8;
+  color: var(--accent-warm);
   font-weight: 700;
 }
 
@@ -756,7 +780,7 @@ html, body {
 
 .chat-text-field {
   flex: 1;
-  background: var(--bg-main);
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 18px;
   padding: 8px 14px;
@@ -766,11 +790,11 @@ html, body {
 }
 
 .chat-text-field:focus {
-  border-color: var(--accent-blue);
+  border-color: var(--border-focus);
 }
 
 .btn-send-msg {
-  background: var(--accent-blue);
+  background: var(--accent-warm);
   color: #ffffff;
   border: none;
   border-radius: 18px;
@@ -779,10 +803,11 @@ html, body {
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s ease;
+  box-shadow: 0 2px 6px rgba(200, 90, 43, 0.2);
 }
 
 .btn-send-msg:hover {
-  background: var(--accent-blue-hover);
+  background: var(--accent-warm-hover);
 }
 
 /* TOAST COPIÉ */
@@ -791,8 +816,8 @@ html, body {
   top: 60px;
   left: 50%;
   transform: translateX(-50%);
-  background: #1e293b;
-  color: #f1f5f9;
+  background: var(--text-primary);
+  color: #ffffff;
   font-size: 12px;
   padding: 6px 14px;
   border-radius: 14px;
@@ -800,17 +825,19 @@ html, body {
   pointer-events: none;
   transition: opacity 0.2s ease;
   z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .toast-popup.show {
   opacity: 1;
 }
 
-/* MODALE DIALOG */
+/* MODALE DIALOGUE */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(40, 30, 20, 0.4);
+  backdrop-filter: blur(2px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -825,11 +852,12 @@ html, body {
 .modal-dialog {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 20px;
   max-width: 320px;
   width: 100%;
   text-align: center;
+  box-shadow: var(--shadow-md);
 }
 
 .modal-dialog-header {
@@ -838,6 +866,7 @@ html, body {
   align-items: center;
   font-weight: 600;
   font-size: 13.5px;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
 
@@ -850,16 +879,18 @@ html, body {
 }
 
 .modal-qr-zone {
-  background: #fff;
+  background: #ffffff;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
   display: inline-block;
   margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
 .modal-link-display {
   font-size: 11px;
-  color: var(--accent-blue);
+  color: var(--accent-warm);
   word-break: break-all;
   text-decoration: none;
 }

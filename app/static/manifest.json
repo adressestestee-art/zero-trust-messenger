@@ -13,8 +13,8 @@
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#fbf9f5",
+  "theme_color": "#c85a2b",
   "orientation": "portrait-primary",
   "categories": [
     "social",
