@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Configuration de Sécurité Réseau Android pour Environnement Mobile Hostile
+- Bloque 100% du trafic HTTP non chiffré (cleartextTrafficPermitted=false)
+- N'autorise que les certificats racine système officiels (bloque les certificats utilisateur/MDM d'inspection)
+- Prise en charge du Certificate Pinning (SPKI SHA-256) sur le domaine du serveur relais distant
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <!-- Domaine de production du relais distant -->
+        <domain includeSubdomains="true">relay.zerotrust.network</domain>
+        <pin-set expiration="2027-01-01">
+            <!-- Pin SHA-256 de la clé publique du serveur relais -->
+            <pin digest="SHA-256">WoiWRFYSo2adVsUYU8RbsguWSpUzaOiCpA24axoLRUg=</pin>
+            <!-- Pin de secours (Backup Pin) en cas de renouvellement d'urgence -->
+            <pin digest="SHA-256">k2v657xUM4RdRygnAyVtfL0U4643QcvCmxUqg+nr439=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

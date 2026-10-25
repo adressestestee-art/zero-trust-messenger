@@ -1,0 +1,34 @@
+name: zero_trust_messenger
+description: Ultra-secure cross-platform zero-trust instant messaging for Windows, macOS, and Android.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Cryptographie moderne et sécurisée
+  cryptography: ^2.7.1
+  flutter_secure_storage: ^9.0.0
+  uuid: ^4.3.3
+
+  # QR Code : Génération et Scan multiplateforme
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^5.1.1
+  file_picker: ^8.0.0
+  web_socket_channel: ^2.4.1
+
+  # Utilitaires & État
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
