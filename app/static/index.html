@@ -2,329 +2,294 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Zero Trust Messenger</title>
   <link rel="icon" type="image/png" href="/icon-192.png" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="ZT Messenger" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#090d16" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-view="dashboard">
 
-  <!-- BANNIÈRE D'UPGRADE HTTPS AUTOMATIQUE POUR CAMÉRA ANDROID -->
-  <div id="httpsUpgradeBanner" style="display: none; background: #fef3c7; color: #92400e; padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; border-bottom: 1px solid #fde68a;">
-    Android requiert HTTPS pour autoriser la caméra. Cliquez ici pour activer le mode sécurisé.
+  <!-- AVERTISSEMENT HTTPS ANDROID -->
+  <div id="httpsUpgradeBanner" style="display: none; background: #1e293b; color: #94a3b8; padding: 10px 16px; font-size: 12px; font-weight: 500; text-align: center; border-bottom: 1px solid #334155; cursor: pointer;">
+    Connexion non securisee. Cliquez ici pour activer le chiffrement HTTPS.
   </div>
 
-  <!-- BARRE SUPÉRIEURE ÉPURÉE ET CLAIRE -->
-  <header class="top-security-bar">
-    <div class="status-left">
-      <div class="brand-badge">
-        <span class="pulse-dot"></span>
-        <span>ZeroTrust Messenger</span>
+  <!-- BARRE DE NAVIGATION PRINCIPALE (EN-TETE SYSTEME) -->
+  <header class="app-header">
+    <div class="header-left">
+      <!-- BOUTON TIROIR CONVERSATIONS (STYLE MOBILE & COMPACT) -->
+      <button id="btnToggleSideNav" class="nav-icon-btn" aria-label="Menu des conversations">
+        <span class="nav-bar"></span>
+        <span class="nav-bar"></span>
+        <span class="nav-bar"></span>
+      </button>
+
+      <div class="app-brand">
+        <span class="status-indicator"></span>
+        <span class="brand-title">Zero Trust Messenger</span>
       </div>
-      <span class="badge-pill hide-mobile">E2EE Chiffré</span>
-      <span id="relayStatusBadge" class="badge-pill badge-cyan hide-mobile">Relais Connecté</span>
+
+      <!-- SELECTEUR D'ONGLET PRINCIPAL (ACCUEIL / CONVERSATIONS) -->
+      <nav class="main-tabs-nav" aria-label="Navigation principale">
+        <button id="tabBtnDashboard" class="tab-btn active">Accueil</button>
+        <button id="tabBtnChats" class="tab-btn">
+          <span>Conversations</span>
+          <span id="unreadTotalBadge" class="tab-count-badge" style="display: none;">0</span>
+        </button>
+      </nav>
     </div>
 
-    <!-- BOUTONS DESKTOP -->
-    <div class="status-right hide-mobile">
-      <button id="btnShow4gQr" class="btn-ghost-xs" title="Afficher le QR code pour ouvrir l'application sur smartphone">
-        Ouvrir sur Mobile
-      </button>
-      <button id="btnOpenSecondDevice" class="btn-ghost-xs" title="Tester le chat avec un second appareil">
-        Tester 2e Appareil
-      </button>
-    </div>
-
-    <!-- BOUTON MENU BURGER 3 BARRES (VISIBLE SUR MOBILE) -->
-    <div class="mobile-menu-trigger">
-      <button id="btnToggleMobileMenu" class="btn-burger" aria-label="Menu des options">
-        <span class="burger-bar"></span>
-        <span class="burger-bar"></span>
-        <span class="burger-bar"></span>
-      </button>
+    <div class="header-right">
+      <div id="relayStatusText" class="status-pill status-pill-active">
+        <span class="status-dot"></span>
+        <span>Relais Chiffre Actif</span>
+      </div>
+      <button id="btnHeaderMobileLink" class="header-action-btn hide-mobile">Acces Mobile</button>
     </div>
   </header>
 
-  <!-- MENU TIROIR LATÉRAL MOBILE (SLIDE-OVER MENU) -->
-  <div id="mobileDrawerBackdrop" class="drawer-backdrop">
-    <div class="drawer-panel">
-      <div class="drawer-header">
-        <span class="drawer-title">Options de l'Application</span>
-        <button id="btnCloseMobileDrawer" class="btn-close-modal">Fermer</button>
-      </div>
+  <!-- CONTENEUR GLOBAL DES VUES (DEUX PAGES DISTINCTES) -->
+  <div class="app-container">
 
-      <div class="drawer-status-card">
-        <div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">État de la Sécurité :</div>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-          <span class="badge-pill">E2EE Chiffré</span>
-          <span class="badge-pill badge-cyan">Relais Connecté</span>
-        </div>
-      </div>
+    <!-- ====================================================================
+         VUE 1 : PAGE D'ACCUEIL (DASHBOARD CRYPTOGRAPHIQUE & GESTION DES CLES)
+         ==================================================================== -->
+    <main id="viewDashboard" class="view-page active">
+      <div class="dashboard-scrollable">
+        <div class="dashboard-content-max">
 
-      <div class="drawer-actions-list">
-        <button id="btnEnableNotifications" class="drawer-action-item">
-          <span>Activer les Notifications Push</span>
-        </button>
-        <button id="btnDrawerShow4gQr" class="drawer-action-item">
-          <span>Ouvrir sur un autre Mobile (QR)</span>
-        </button>
-        <button id="btnDrawerOpenSecondDevice" class="drawer-action-item">
-          <span>Ouvrir un 2e Profil de Test</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ESPACE DE TRAVAIL ADAPTATIF -->
-  <main class="app-workspace" id="appWorkspace" data-mobile-view="contacts">
-
-    <!-- VOLET GAUCHE : CONTACTS ET IDENTITÉ -->
-    <aside class="sidebar-pane">
-      <div class="identity-header">
-        <div class="identity-card">
-          <div class="identity-row">
-            <div class="identity-alias-group">
-              <span id="myAliasText" class="identity-alias">Chargement...</span>
+          <!-- BANDEAU SUPERIEUR : IDENTITE HARDWARE & CLES LOCALES -->
+          <section class="identity-panel">
+            <div class="panel-header-row">
+              <div class="panel-tag">Identite Cryptographique Locale</div>
+              <div class="platform-badge" id="platformIdentifierBadge">Detection plateforme...</div>
             </div>
-            <button id="btnEditAlias" class="btn-edit-alias">Modifier</button>
-          </div>
-          <div class="identity-meta">
-            <div>ID : <span id="myDeviceIdText">...</span></div>
-            <div>Empreinte : <span id="myFingerprintText" class="fp-highlight">...</span></div>
-          </div>
-        </div>
 
-        <!-- BOUTONS D'ACTION ÉPURÉS SANS EMOJI -->
-        <div class="qr-action-grid">
-          <button id="btnShowMyQr" class="btn-qr-secondary">
-            Afficher mon QR
-          </button>
-          <button id="btnOpenScanner" class="btn-qr-primary">
-            Scanner Contact
-          </button>
-        </div>
-
-        <!-- BARRE DE RECHERCHE RAPIDE DANS LES CONTACTS -->
-        <div class="contacts-search-box" style="margin-top: 4px;">
-          <input type="text" id="contactSearchInput" placeholder="Rechercher un contact..." class="search-input" />
-        </div>
-      </div>
-
-      <div class="sidebar-section-title">
-        <span>Contacts Vérifiés</span>
-        <span id="verifiedCountBadge" class="badge-pill">0</span>
-      </div>
-
-      <div id="contactsList" class="contacts-list">
-        <!-- Rempli dynamiquement -->
-      </div>
-    </aside>
-
-    <!-- VOLET DROIT : FENÊTRE DE DISCUSSION -->
-    <section class="chat-pane">
-
-      <!-- ÉCRAN D'ACCUEIL DASHBOARD INTERACTIF ET VISUEL -->
-      <div id="zeroTrustLockScreen" class="zero-trust-lock-screen">
-        <div class="welcome-hero-card">
-          <div class="hero-badge-pill">Cryptographie Militaire Décentralisée</div>
-          <h1 class="hero-title">Zero Trust Messenger</h1>
-          <p class="hero-subtitle">
-            Aucun mot de passe, aucun numéro de téléphone, aucun serveur espion. Les messages sont scellés directement sur votre matériel.
-          </p>
-
-          <div class="hero-action-buttons">
-            <button id="btnHeroScan" class="btn-hero-primary">
-              <span>Scanner un Contact</span>
-            </button>
-            <button id="btnHeroShowQr" class="btn-hero-secondary">
-              <span>Afficher mon Identité</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- STATUTS ET MÉTRIQUES EN DIRECT -->
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-value">0%</div>
-            <div class="metric-label">Données sur serveur</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">256-bit</div>
-            <div class="metric-label">Chiffrement AES-GCM</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">P-256</div>
-            <div class="metric-label">Échange ECDH</div>
-          </div>
-        </div>
-
-        <!-- GUIDE INTERACTIF PAS À PAS -->
-        <div class="lock-steps">
-          <div class="step-card" id="stepCard1">
-            <div class="step-num">Étape 1 // Clés Générées Localement</div>
-            <div class="step-text">Vos clés privées sont créées dans votre appareil et ne le quittent jamais.</div>
-          </div>
-          <div class="step-card" id="stepCard2">
-            <div class="step-num">Étape 2 // Échange QR Hors-Ligne</div>
-            <div class="step-text">Scannez le QR code de votre correspondant pour certifier son identité sans intermédiaire.</div>
-          </div>
-          <div class="step-card" id="stepCard3">
-            <div class="step-num">Étape 3 // Discussion Immédiate</div>
-            <div class="step-text">Le canal chiffré s'ouvre automatiquement. Vos échanges sont privés et sécurisés.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- FENÊTRE DE CHAT DÉVERROUILLÉE -->
-      <div id="activeChatContainer" class="active-chat-container" style="display: none;">
-        <header class="chat-header">
-          <div class="chat-header-left">
-            <button id="btnMobileBack" class="btn-mobile-back">Retour</button>
-            <div>
-              <div class="chat-contact-title">
-                <span id="activeContactName">Contact</span>
-                <span class="verified-tag">Vérifié</span>
+            <div class="identity-card-grid">
+              <div class="identity-field">
+                <span class="field-label">Identifiant de session</span>
+                <div class="field-value-group">
+                  <span id="dashMyAlias" class="field-value-strong">Initialisation...</span>
+                  <button id="btnDashEditAlias" class="field-edit-btn">Modifier</button>
+                </div>
               </div>
-              <div id="activeContactFp" class="chat-crypto-sub">Empreinte : ...</div>
+
+              <div class="identity-field">
+                <span class="field-label">ID Materiel (CSPRNG)</span>
+                <span id="dashMyDeviceId" class="field-mono">...</span>
+              </div>
+
+              <div class="identity-field full-width">
+                <span class="field-label">Empreinte Publique SHA-256 (P-256)</span>
+                <span id="dashMyFingerprint" class="field-mono highlight">...</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- MODULE D'APPAIRAGE : SCANNER & AFFICHER LE QR CODE -->
+          <section class="pairing-grid">
+            <div class="action-card">
+              <div class="card-caption">Appairage Entrant</div>
+              <h2 class="card-heading">Mon QR Code de Liaison</h2>
+              <p class="card-summary">
+                Presentez ce code a votre contact. Il contient exclusivement votre cle publique signee par ECDSA secp256r1.
+              </p>
+              <div class="qr-container-box">
+                <div id="dashQrCanvasContainer"></div>
+              </div>
+              <div class="card-btn-row">
+                <button id="btnDashExportQr" class="btn-secondary">Exporter l'image (.png)</button>
+              </div>
+            </div>
+
+            <div class="action-card">
+              <div class="card-caption">Appairage Sortant</div>
+              <h2 class="card-heading">Scanner un Interlocuteur</h2>
+              <p class="card-summary">
+                Validez la signature cryptographique de votre correspondant pour etablir un canal de communication prive.
+              </p>
+              <div class="scanner-preview-box">
+                <video id="dashScannerVideo" playsinline autoplay muted></video>
+                <div class="scanner-overlay-reticle">
+                  <div class="scanner-laser-line"></div>
+                </div>
+                <button id="btnTriggerScannerPerm" class="btn-primary" style="display: none; position: absolute; z-index: 10;">
+                  Activer la Camera
+                </button>
+                <canvas id="dashScannerCanvas" style="display: none;"></canvas>
+              </div>
+              <div id="dashScannerStatus" class="scanner-feedback">Viseur inactif. Cliquez ci-dessous pour lancer l'analyse.</div>
+              <div class="card-btn-row">
+                <button id="btnStartCameraLive" class="btn-primary">Activer le Scanner</button>
+                <button id="btnImportImageQr" class="btn-secondary">Importer un fichier</button>
+                <input type="file" id="dashFileInput" accept="image/*" style="display: none;" />
+              </div>
+            </div>
+          </section>
+
+          <!-- SPECIFICATIONS TECHNIQUES DE PROTECTION -->
+          <section class="security-metrics-panel">
+            <div class="metric-row">
+              <div class="metric-col">
+                <span class="m-val">AES-256-GCM</span>
+                <span class="m-lbl">Chiffrement symetrique des charges utiles</span>
+              </div>
+              <div class="metric-col">
+                <span class="m-val">HKDF-SHA256</span>
+                <span class="m-lbl">Derivation stricte par message</span>
+              </div>
+              <div class="metric-col">
+                <span class="m-val">Zero-Knowledge</span>
+                <span class="m-lbl">Zero stockage en clair sur le relais cloud</span>
+              </div>
+              <div class="metric-col">
+                <span class="m-val">Anti-Replay</span>
+                <span class="m-lbl">Sequences monotones associees AAD</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         VUE 2 : ONGLET CONVERSATIONS (AVEC TIROIR LATERAL & ETAT PAR PLATEFORME)
+         ==================================================================== -->
+    <section id="viewChats" class="view-page">
+      <div class="chats-layout">
+
+        <!-- TIROIR LATERAL DE GAUCHE : LISTE DES CONVERSATIONS -->
+        <aside id="chatDrawer" class="chats-sidebar">
+          <div class="sidebar-header">
+            <div class="sidebar-title-group">
+              <span class="sidebar-title">Discussions</span>
+              <span id="chatsCountBadge" class="sidebar-counter">0</span>
+            </div>
+            <button id="btnCloseDrawerMobile" class="close-drawer-btn hide-desktop" aria-label="Fermer le tiroir">Fermer</button>
+          </div>
+
+          <!-- RECHERCHE DE DISCUSSION -->
+          <div class="sidebar-search">
+            <input type="text" id="chatsSearchInput" class="search-field" placeholder="Filtrer un contact..." autocomplete="off" />
+          </div>
+
+          <!-- LISTE DES CONTACTS VERIFIES -->
+          <div id="chatsContactsList" class="contacts-scroll-area">
+            <!-- Injecte dynamiquement -->
+          </div>
+
+          <!-- PIED DU TIROIR -->
+          <div class="sidebar-footer">
+            <button id="btnSwitchToDashboardFromSidebar" class="sidebar-nav-btn">
+              Tableau de bord et Appairage
+            </button>
+          </div>
+        </aside>
+
+        <!-- VOLET PRINCIPAL DE DISCUSSION (OU ETAT VIDE SPECIFIQUE) -->
+        <div class="chat-main-area">
+
+          <!-- ETAT A : AUCUNE CONVERSATION SELECTIONNEE (SPECIFIQUE PAR PLATEFORME) -->
+          <div id="emptyPlatformState" class="empty-platform-wrapper">
+            <div class="empty-state-card">
+              <div class="empty-badge" id="emptyPlatformName">Environnement Securise</div>
+              <h3 class="empty-title">Aucune discussion active</h3>
+              <p class="empty-text" id="emptyPlatformGuidance">
+                Selectionnez un contact verifie dans la liste ou effectuez un appairage prealable par QR Code pour initier un canal confidentiel.
+              </p>
+              <div class="empty-specs-box" id="emptyPlatformDetails">
+                <div class="spec-line"><span class="spec-k">Plateforme :</span> <span class="spec-v" id="specPlatform">-</span></div>
+                <div class="spec-line"><span class="spec-k">Chiffrement :</span> <span class="spec-v">ECDH NIST P-256 + AES-GCM</span></div>
+                <div class="spec-line"><span class="spec-k">Protection locale :</span> <span class="spec-v" id="specStorage">-</span></div>
+              </div>
+              <button id="btnEmptyGoDashboard" class="btn-primary" style="margin-top: 18px;">
+                Ouvrir l'appairage QR
+              </button>
             </div>
           </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button id="btnDeleteConversation" class="btn-ghost-xs" style="color: #ef4444; border-color: #fca5a5;" title="Supprimer cette discussion et son historique">
-              Supprimer
-            </button>
-            <button id="btnToggleCipherInspector" class="btn-ghost-xs">
-              Inspecteur : ON
-            </button>
-          </div>
-        </header>
 
-        <div id="chatMessagesArea" class="chat-messages-area">
-          <!-- Messages chiffrés de bout en bout -->
+          <!-- ETAT B : FENETRE DE CHAT SELECTIONNEE ET ACTIVE -->
+          <div id="activeChatView" class="active-chat-wrapper" style="display: none;">
+            <div class="chat-view-header">
+              <div class="chat-view-left">
+                <button id="btnChatBackMobile" class="nav-back-btn hide-desktop">Retour</button>
+                <div class="contact-details">
+                  <div class="contact-name-line">
+                    <span id="activeChatPeerName" class="peer-name">Contact</span>
+                    <span class="auth-tag">Signe ECDSA</span>
+                  </div>
+                  <div id="activeChatPeerMeta" class="peer-sub">Empreinte : ...</div>
+                </div>
+              </div>
+              <div class="chat-view-right">
+                <button id="btnDeleteActiveChat" class="action-btn-danger">Effacer l'historique</button>
+                <button id="btnToggleInspector" class="action-btn-neutral">Inspecteur : ON</button>
+              </div>
+            </div>
+
+            <!-- MESSAGES ENROLES ET DECHIFFRES -->
+            <div id="chatMessagesScroll" class="chat-messages-scroll">
+              <!-- Messages injectes -->
+            </div>
+
+            <!-- NOTIFICATION DISCRETE DE PRESSE-PAPIERS -->
+            <div id="toastNotification" class="toast-box">Texte copie</div>
+
+            <!-- COMPOSITEUR DE MESSAGE CHIFFRE -->
+            <form id="activeChatComposer" class="chat-composer-bar" autocomplete="off">
+              <input
+                type="text"
+                id="activeChatInput"
+                class="composer-input"
+                placeholder="Message chiffre de bout en bout..."
+                required
+              />
+              <button type="submit" class="composer-submit-btn">Envoyer</button>
+            </form>
+          </div>
+
         </div>
 
-        <!-- ZONE DE CONFIRMATION DE COPIE / ACTION -->
-        <div id="copyToastNotice" class="toast-notice">Texte copié dans le presse-papiers</div>
-
-        <form id="chatComposerForm" class="chat-composer" autocomplete="off">
-          <input
-            type="text"
-            id="chatInput"
-            class="chat-input"
-            placeholder="Écrivez un message chiffré..."
-            required
-          />
-          <button type="submit" class="btn-send">
-            <span>Envoyer</span>
-          </button>
-        </form>
       </div>
-
     </section>
 
-  </main>
-
-  <!-- MODALE 1 : AFFICHER MON QR CODE -->
-  <div id="modalMyQr" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="modal-title">Mon QR Code de Contact</span>
-        <button id="btnCloseMyQr" class="btn-close-modal">Fermer</button>
-      </div>
-
-      <div class="qr-display-wrapper">
-        <div id="myQrCanvasContainer"></div>
-      </div>
-
-      <div class="qr-fingerprint-box">
-        <div style="color: var(--text-secondary); margin-bottom: 4px;">Identifiant : <strong id="modalMyAlias" style="color: var(--text-primary);"></strong></div>
-        <div>Empreinte : <span id="modalMyFp" style="color: var(--accent-primary); font-weight: 600;"></span></div>
-      </div>
-
-      <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-bottom: 12px; line-height: 1.45;">
-        Faites scanner ce code par la caméra de votre contact pour établir la liaison chiffrée.
-      </p>
-
-      <div class="modal-actions-row">
-        <button id="btnDownloadQrPng" class="btn-modal-action">Enregistrer l'image</button>
-      </div>
-    </div>
   </div>
 
-  <!-- MODALE 2 : SCANNER UN CONTACT -->
-  <div id="modalScanner" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="modal-title">Scanner un Contact</span>
-        <button id="btnCloseScanner" class="btn-close-modal">Fermer</button>
+  <!-- MODALE : ACCES RAPIDE LIEN SERVEUR CLOUD / MOBILE -->
+  <div id="modalMobileUrl" class="modal-dim">
+    <div class="modal-box">
+      <div class="modal-top">
+        <span class="modal-caption">Acces Mobile & Synchronisation</span>
+        <button id="btnCloseModalMobile" class="modal-close">Fermer</button>
       </div>
-
-      <div class="scanner-viewport">
-        <video id="scannerVideo" playsinline autoplay muted></video>
-        <div class="scanner-reticle">
-          <div class="scanner-laser"></div>
-        </div>
-        <button id="btnRequestCameraPerm" style="display: none; position: absolute; z-index: 5; background: var(--accent-primary); color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 13px; cursor: pointer;">
-          Autoriser la Caméra
-        </button>
-        <canvas id="scannerWorkCanvas" style="display: none;"></canvas>
+      <div class="qr-render-center">
+        <div id="serverUrlQrContainer"></div>
       </div>
-
-      <div id="scannerStatusMsg" class="scanner-status-msg">
-        Positionnez le QR code dans le cadre...
-      </div>
-
-      <div class="modal-actions-row">
-        <button id="btnNativeCameraCapture" class="btn-modal-action" style="background: var(--accent-primary); color: #fff;">
-          Prendre une photo
-        </button>
-        <button id="btnImportQrImage" class="btn-modal-action">
-          Importer une image
-        </button>
-        <button id="btnSwitchCamera" class="btn-modal-action" style="flex: 0.35;">
-          Changer
-        </button>
-      </div>
-      <input type="file" id="qrNativeCameraInput" accept="image/*" capture="environment" style="display: none;" />
-      <input type="file" id="qrFileInput" accept="image/*" style="display: none;" />
-    </div>
-  </div>
-
-  <!-- MODALE 3 : OUVRIR SUR MOBILE -->
-  <div id="modal4gUrlQr" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="modal-title">Ouvrir sur Téléphone</span>
-        <button id="btnClose4gQr" class="btn-close-modal">Fermer</button>
-      </div>
-
-      <div class="qr-display-wrapper">
-        <div id="tunnel4gQrContainer"></div>
-      </div>
-
-      <div class="qr-fingerprint-box" style="text-align: center;">
-        <div style="color: var(--text-secondary); margin-bottom: 4px;">Adresse Cloud HTTPS :</div>
-        <a id="tunnel4gUrlText" href="https://zero-trust-messenger.onrender.com" target="_blank" style="color: var(--accent-primary); font-weight: 600; word-break: break-all;">
+      <div class="url-info-box">
+        <div class="url-label">Point d'acces distant :</div>
+        <a id="serverUrlDisplay" href="https://zero-trust-messenger.onrender.com" target="_blank" class="url-link">
           https://zero-trust-messenger.onrender.com
         </a>
       </div>
-
-      <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-bottom: 8px; line-height: 1.45;">
-        Scannez ce QR Code avec l'appareil photo de votre téléphone pour accéder directement à l'application.
+      <p class="modal-note">
+        Scannez cette URL depuis un autre terminal pour acceder a la meme instance du relais aveugle.
       </p>
     </div>
   </div>
 
+  <!-- LIBRAIRIES CRITIQUES HORS-LIGNE & CLIENT CHAT DURCI -->
   <script src="/vendor/qrcode.min.js"></script>
   <script src="/vendor/jsQR.js"></script>
-  <script src="/crypto.js?v=2.7"></script>
-  <script src="/app.js?v=2.7"></script>
+  <script src="/crypto.js?v=3.0"></script>
+  <script src="/app.js?v=3.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

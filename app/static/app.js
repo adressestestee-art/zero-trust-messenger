@@ -1,9 +1,13 @@
 /**
  * Zero Trust Messenger — Application Multiplateforme Durcie (Windows, macOS, Android)
- * Conçue pour opérer sur Réseau Mobile / Cellulaire Hostile (4G/5G & Cloudflare Tunnel)
+ * Conçue pour opérer sur Réseau Mobile / Cellulaire Hostile & Cloudflare Tunnel
+ * Architecture Zero-Knowledge : Aucun message en clair sur le relais cloud.
+ * Zéro Emoji / Interface Haute Sécurité Sobre.
  */
 
 (function () {
+  "use strict";
+
   const isLanIp =
     window.location.hostname !== "127.0.0.1" &&
     window.location.hostname !== "localhost" &&
@@ -15,7 +19,7 @@
     const httpsTarget = `https://${window.location.host}${window.location.pathname}${window.location.search}`;
     if (httpsUpgradeBanner) {
       httpsUpgradeBanner.style.display = "block";
-      httpsUpgradeBanner.textContent = `⚠️ Android exige HTTPS pour autoriser la Caméra et WebCrypto. Appuyez ici pour activer HTTPS (${httpsTarget}) →`;
+      httpsUpgradeBanner.textContent = `Connexion non securisee. Cliquez ici pour activer le chiffrement HTTPS (${httpsTarget}) ->`;
       httpsUpgradeBanner.addEventListener("click", () => {
         window.location.href = httpsTarget;
       });
@@ -31,6 +35,7 @@
   const STORAGE_KEY_CONTACTS = `zt_contacts_v2_${deviceNamespace}`;
   const STORAGE_KEY_MESSAGES = `zt_messages_v2_${deviceNamespace}`;
 
+  // Etat principal de l'application
   let myIdentity = null;
   let mySignedQrCache = null;
   let verifiedContacts = [];
@@ -38,53 +43,88 @@
   let unreadByContact = {};
   let activeContactId = null;
   let showCipherInspector = true;
+  let currentView = "dashboard"; // "dashboard" ou "chats"
 
-  // Fenêtre anti-rejeu basée sur des identifiants de séquence uniques par session
+  // Fenetre anti-rejeu basee sur des identifiants de sequence uniques
   let outgoingSeqCounter = Math.floor(Date.now() / 1000) * 100;
   const seenPacketIds = new Set();
   let serverClockOffsetSec = 0;
-  let currentPublic4gUrl = "https://script-gardening-antibody-fields.trycloudflare.com";
+  let remoteServerUrl = window.location.origin;
 
-  // État du scanner caméra
+  // Scanner camera
   let mediaStream = null;
   let scanInterval = null;
   let facingMode = "environment";
-  let lastQrPayloadStr = "";
 
-  // Références DOM
-  const appWorkspace = document.getElementById("appWorkspace");
-  const myAliasText = document.getElementById("myAliasText");
-  const myDeviceIdText = document.getElementById("myDeviceIdText");
-  const myFingerprintText = document.getElementById("myFingerprintText");
-  const verifiedCountBadge = document.getElementById("verifiedCountBadge");
-  const contactsListEl = document.getElementById("contactsList");
+  // Elements DOM Navigation & Layout
+  const bodyEl = document.body;
+  const tabBtnDashboard = document.getElementById("tabBtnDashboard");
+  const tabBtnChats = document.getElementById("tabBtnChats");
+  const unreadTotalBadge = document.getElementById("unreadTotalBadge");
+  const btnToggleSideNav = document.getElementById("btnToggleSideNav");
+  const relayStatusText = document.getElementById("relayStatusText");
+  const btnHeaderMobileLink = document.getElementById("btnHeaderMobileLink");
 
-  const zeroTrustLockScreen = document.getElementById("zeroTrustLockScreen");
-  const activeChatContainer = document.getElementById("activeChatContainer");
-  const activeContactName = document.getElementById("activeContactName");
-  const activeContactFp = document.getElementById("activeContactFp");
-  const chatMessagesArea = document.getElementById("chatMessagesArea");
-  const chatComposerForm = document.getElementById("chatComposerForm");
-  const chatInput = document.getElementById("chatInput");
+  const viewDashboard = document.getElementById("viewDashboard");
+  const viewChats = document.getElementById("viewChats");
+  const chatsLayout = document.querySelector(".chats-layout");
+  const chatDrawer = document.getElementById("chatDrawer");
 
-  const modalMyQr = document.getElementById("modalMyQr");
-  const myQrCanvasContainer = document.getElementById("myQrCanvasContainer");
-  const modalMyAlias = document.getElementById("modalMyAlias");
-  const modalMyFp = document.getElementById("modalMyFp");
+  // Elements Dashboard
+  const platformIdentifierBadge = document.getElementById("platformIdentifierBadge");
+  const dashMyAlias = document.getElementById("dashMyAlias");
+  const btnDashEditAlias = document.getElementById("btnDashEditAlias");
+  const dashMyDeviceId = document.getElementById("dashMyDeviceId");
+  const dashMyFingerprint = document.getElementById("dashMyFingerprint");
+  const dashQrCanvasContainer = document.getElementById("dashQrCanvasContainer");
+  const btnDashExportQr = document.getElementById("btnDashExportQr");
 
-  const modalScanner = document.getElementById("modalScanner");
-  const scannerVideo = document.getElementById("scannerVideo");
-  const scannerWorkCanvas = document.getElementById("scannerWorkCanvas");
-  const scannerStatusMsg = document.getElementById("scannerStatusMsg");
-  const btnRequestCameraPerm = document.getElementById("btnRequestCameraPerm");
-  const qrFileInput = document.getElementById("qrFileInput");
-  const qrNativeCameraInput = document.getElementById("qrNativeCameraInput");
+  const dashScannerVideo = document.getElementById("dashScannerVideo");
+  const dashScannerCanvas = document.getElementById("dashScannerCanvas");
+  const btnTriggerScannerPerm = document.getElementById("btnTriggerScannerPerm");
+  const dashScannerStatus = document.getElementById("dashScannerStatus");
+  const btnStartCameraLive = document.getElementById("btnStartCameraLive");
+  const btnImportImageQr = document.getElementById("btnImportImageQr");
+  const dashFileInput = document.getElementById("dashFileInput");
+
+  // Elements Conversations
+  const chatsCountBadge = document.getElementById("chatsCountBadge");
+  const btnCloseDrawerMobile = document.getElementById("btnCloseDrawerMobile");
+  const chatsSearchInput = document.getElementById("chatsSearchInput");
+  const chatsContactsList = document.getElementById("chatsContactsList");
+  const btnSwitchToDashboardFromSidebar = document.getElementById("btnSwitchToDashboardFromSidebar");
+
+  const emptyPlatformState = document.getElementById("emptyPlatformState");
+  const emptyPlatformName = document.getElementById("emptyPlatformName");
+  const emptyPlatformGuidance = document.getElementById("emptyPlatformGuidance");
+  const specPlatform = document.getElementById("specPlatform");
+  const specStorage = document.getElementById("specStorage");
+  const btnEmptyGoDashboard = document.getElementById("btnEmptyGoDashboard");
+
+  const activeChatView = document.getElementById("activeChatView");
+  const btnChatBackMobile = document.getElementById("btnChatBackMobile");
+  const activeChatPeerName = document.getElementById("activeChatPeerName");
+  const activeChatPeerMeta = document.getElementById("activeChatPeerMeta");
+  const btnDeleteActiveChat = document.getElementById("btnDeleteActiveChat");
+  const btnToggleInspector = document.getElementById("btnToggleInspector");
+  const chatMessagesScroll = document.getElementById("chatMessagesScroll");
+  const toastNotification = document.getElementById("toastNotification");
+  const activeChatComposer = document.getElementById("activeChatComposer");
+  const activeChatInput = document.getElementById("activeChatInput");
+
+  // Elements Modal URL Mobile
+  const modalMobileUrl = document.getElementById("modalMobileUrl");
+  const btnCloseModalMobile = document.getElementById("btnCloseModalMobile");
+  const serverUrlQrContainer = document.getElementById("serverUrlQrContainer");
+  const serverUrlDisplay = document.getElementById("serverUrlDisplay");
 
   // =========================================================================
-  // 1. INITIALISATION DE L'IDENTITÉ LOCALE
+  // 1. INITIALISATION DE L'APPLICATION & DETECTION PLATEFORME
   // =========================================================================
   async function initApp() {
-    // Récupération compatible v1 / v2 pour ne jamais perdre l'identité existante du PC
+    detectPlatform();
+
+    // Recuperation identite locale
     const savedId =
       localStorage.getItem(STORAGE_KEY_IDENTITY) ||
       localStorage.getItem(`zt_id_${deviceNamespace}`);
@@ -102,6 +142,7 @@
     localStorage.setItem(STORAGE_KEY_IDENTITY, JSON.stringify(myIdentity));
     mySignedQrCache = await window.ztCrypto.createSignedQrPayload(myIdentity);
 
+    // Recuperation des contacts verifies
     const savedContacts =
       localStorage.getItem(STORAGE_KEY_CONTACTS) ||
       localStorage.getItem(`zt_contacts_${deviceNamespace}`);
@@ -113,6 +154,7 @@
       }
     }
 
+    // Recuperation des messages
     const savedMessages =
       localStorage.getItem(STORAGE_KEY_MESSAGES) ||
       localStorage.getItem(`zt_messages_${deviceNamespace}`);
@@ -125,12 +167,67 @@
     }
 
     renderIdentityHeader();
+    renderDashboardQr();
     renderContactsList();
-    if (verifiedContacts.length > 0 && !activeContactId) {
-      selectContact(verifiedContacts[0].id);
-    }
+    updateUnreadTotalBadge();
+
+    // Initialisation du routeur de vue
+    switchView("dashboard");
+
+    // Connexion au serveur de statut et relais
     fetchServerStatus();
     startSignedRelayPolling();
+  }
+
+  function detectPlatform() {
+    const ua = navigator.userAgent || "";
+    let platform = "Web";
+    let storage = "WebCrypto IndexedDB Isolee";
+    let guidance =
+      "Selectionnez un contact verifie ou utilisez le scanner QR pour etablir un canal confidentiel.";
+
+    if (/iPhone|iPad|iPod/i.test(ua)) {
+      platform = "Apple iOS";
+      storage = "Apple Secure Enclave (WebCrypto)";
+      guidance =
+        "Environnement iOS : Cles locales generees via WebCrypto et isolees dans la Secure Enclave du terminal.";
+    } else if (/Macintosh|Mac OS X/i.test(ua)) {
+      platform = "Apple macOS";
+      storage = "macOS Keychain Vault";
+      guidance =
+        "Environnement macOS : Cles isolees au sein du trousseau local et de la sandbox WebKit.";
+    } else if (/Android/i.test(ua)) {
+      platform = "Android";
+      storage = "Android KeyStore Sandbox";
+      guidance =
+        "Environnement Android : Isolation cryptographique stricte au sein du bac a sable de l'application.";
+    } else if (/Windows|Win32|Win64/i.test(ua)) {
+      platform = "Windows";
+      storage = "Windows DPAPI & WebView2 Sandbox";
+      guidance =
+        "Environnement Windows : Execution native sans dependance externe, stockage chiffre sous DPAPI.";
+    } else if (/Linux/i.test(ua)) {
+      platform = "Linux";
+      storage = "Linux Kernel Keyring (WebCrypto)";
+      guidance =
+        "Environnement Linux : Protection du processus et isolation memoire WebCrypto.";
+    }
+
+    if (platformIdentifierBadge) {
+      platformIdentifierBadge.textContent = platform;
+    }
+    if (emptyPlatformName) {
+      emptyPlatformName.textContent = `Espace ${platform} Securise`;
+    }
+    if (emptyPlatformGuidance) {
+      emptyPlatformGuidance.textContent = guidance;
+    }
+    if (specPlatform) {
+      specPlatform.textContent = platform;
+    }
+    if (specStorage) {
+      specStorage.textContent = storage;
+    }
   }
 
   function saveState() {
@@ -140,171 +237,163 @@
   }
 
   function renderIdentityHeader() {
-    myAliasText.textContent = myIdentity.alias;
-    myDeviceIdText.textContent = myIdentity.deviceId;
-    myFingerprintText.textContent = myIdentity.fingerprint;
+    if (dashMyAlias) dashMyAlias.textContent = myIdentity.alias;
+    if (dashMyDeviceId) dashMyDeviceId.textContent = myIdentity.deviceId;
+    if (dashMyFingerprint) dashMyFingerprint.textContent = myIdentity.fingerprint;
     document.title = `${myIdentity.alias} — Zero Trust Messenger`;
   }
 
   // =========================================================================
-  // 2. CONTACTS VÉRIFIÉS (KEYRING) & RECHERCHE
+  // 2. GESTION DES DEUX VUES (ACCUEIL / CONVERSATIONS) & TIROIR MOBILE
   // =========================================================================
-  let contactSearchQuery = "";
+  function switchView(viewName) {
+    currentView = viewName;
+    bodyEl.setAttribute("data-view", viewName);
 
-  function renderContactsList() {
-    verifiedCountBadge.textContent = String(verifiedContacts.length);
-    contactsListEl.innerHTML = "";
+    if (viewName === "dashboard") {
+      tabBtnDashboard.classList.add("active");
+      tabBtnChats.classList.remove("active");
+      viewDashboard.classList.add("active");
+      viewChats.classList.remove("active");
+      stopCameraStream();
+    } else if (viewName === "chats") {
+      tabBtnDashboard.classList.remove("active");
+      tabBtnChats.classList.add("active");
+      viewDashboard.classList.remove("active");
+      viewChats.classList.add("active");
 
-    const filtered = verifiedContacts.filter((c) =>
-      c.alias.toLowerCase().includes(contactSearchQuery.toLowerCase()) ||
-      c.fingerprint.toLowerCase().includes(contactSearchQuery.toLowerCase())
-    );
-
-    if (filtered.length === 0) {
-      contactsListEl.innerHTML = `
-        <div class="empty-contacts-box">
-          <div class="empty-contacts-title">${contactSearchQuery ? "Aucun contact trouvé" : "Aucun contact vérifié"}</div>
-          <div class="empty-contacts-desc">
-            ${contactSearchQuery ? "Modifiez votre recherche." : "Scannez le QR code d'un contact pour démarrer une conversation chiffrée."}
-          </div>
-        </div>
-      `;
-      return;
+      // Sur mobile, si aucun contact actif, on s'assure d'afficher la liste
+      if (!activeContactId && chatsLayout) {
+        chatsLayout.setAttribute("data-chat-view", "list");
+      }
     }
+  }
 
-    filtered.forEach((contact) => {
-      const item = document.createElement("div");
-      item.className =
-        "contact-item" + (contact.id === activeContactId ? " active" : "");
-      const initials = (contact.alias || "ZT").slice(0, 2).toUpperCase();
-      const unread = unreadByContact[contact.id] || 0;
+  tabBtnDashboard.addEventListener("click", () => switchView("dashboard"));
+  tabBtnChats.addEventListener("click", () => switchView("chats"));
+  btnEmptyGoDashboard.addEventListener("click", () => switchView("dashboard"));
+  btnSwitchToDashboardFromSidebar.addEventListener("click", () => switchView("dashboard"));
 
-      item.innerHTML = `
-        <div class="contact-avatar">${initials}</div>
-        <div class="contact-info">
-          <div class="contact-name-row">
-            <span class="contact-name">${escapeHtml(contact.alias)}</span>
-            ${
-              unread > 0
-                ? `<span class="unread-badge">${unread}</span>`
-                : `<span class="verified-tag">Vérifié</span>`
-            }
-          </div>
-          <div class="contact-fp">${escapeHtml(contact.fingerprint)}</div>
-        </div>
-      `;
+  // Bouton Burger / Tiroir en haut a gauche
+  btnToggleSideNav.addEventListener("click", () => {
+    if (currentView === "dashboard") {
+      switchView("chats");
+      if (chatsLayout) chatsLayout.setAttribute("data-chat-view", "list");
+    } else {
+      if (chatsLayout) {
+        const isRoom = chatsLayout.getAttribute("data-chat-view") === "room";
+        chatsLayout.setAttribute("data-chat-view", isRoom ? "list" : "room");
+      }
+    }
+  });
 
-      item.addEventListener("click", () => selectContact(contact.id));
-      contactsListEl.appendChild(item);
+  if (btnCloseDrawerMobile) {
+    btnCloseDrawerMobile.addEventListener("click", () => {
+      if (activeContactId && chatsLayout) {
+        chatsLayout.setAttribute("data-chat-view", "room");
+      }
     });
   }
 
-  function selectContact(contactId) {
-    const contact = verifiedContacts.find((c) => c.id === contactId);
-    if (!contact) return;
-
-    activeContactId = contact.id;
-    unreadByContact[contact.id] = 0;
-
-    zeroTrustLockScreen.style.display = "none";
-    activeChatContainer.style.display = "flex";
-    activeContactName.textContent = contact.alias;
-    activeContactFp.textContent = `Clé secp256r1 : ${contact.fingerprint} | Mailbox : ${contact.mailbox}`;
-
-    appWorkspace.setAttribute("data-mobile-view", "chat");
-
-    renderContactsList();
-    renderChatMessages();
+  if (btnChatBackMobile) {
+    btnChatBackMobile.addEventListener("click", () => {
+      if (chatsLayout) {
+        chatsLayout.setAttribute("data-chat-view", "list");
+      }
+    });
   }
 
   // =========================================================================
-  // 3. QR CODE IDENTITY
+  // 3. PAGE D'ACCUEIL : QR CODE LOCAL ET EXPORTATION PNG
   // =========================================================================
-  async function openMyQrModal() {
-    lastQrPayloadStr = await window.ztCrypto.createSignedQrPayload(myIdentity);
-    mySignedQrCache = lastQrPayloadStr;
-    myQrCanvasContainer.innerHTML = "";
-    modalMyAlias.textContent = myIdentity.alias;
-    modalMyFp.textContent = myIdentity.fingerprint;
+  async function renderDashboardQr() {
+    if (!dashQrCanvasContainer || !myIdentity) return;
+    dashQrCanvasContainer.innerHTML = "";
 
-    new QRCode(myQrCanvasContainer, {
-      text: lastQrPayloadStr,
-      width: 230,
-      height: 230,
+    mySignedQrCache = await window.ztCrypto.createSignedQrPayload(myIdentity);
+
+    new QRCode(dashQrCanvasContainer, {
+      text: mySignedQrCache,
+      width: 210,
+      height: 210,
       colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.L,
     });
-
-    modalMyQr.classList.add("open");
   }
 
-  function downloadMyQrAsPng() {
-    const qrCanvas = myQrCanvasContainer.querySelector("canvas");
-    const qrImg = myQrCanvasContainer.querySelector("img");
+  if (btnDashExportQr) {
+    btnDashExportQr.addEventListener("click", () => {
+      const qrCanvas = dashQrCanvasContainer.querySelector("canvas");
+      const qrImg = dashQrCanvasContainer.querySelector("img");
 
-    const exportCanvas = document.createElement("canvas");
-    const size = 300;
-    const padding = 35;
-    exportCanvas.width = size;
-    exportCanvas.height = size;
-    const ctx = exportCanvas.getContext("2d");
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, size, size);
+      const exportCanvas = document.createElement("canvas");
+      const size = 320;
+      const padding = 36;
+      exportCanvas.width = size;
+      exportCanvas.height = size;
+      const ctx = exportCanvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
 
-    const drawSource = qrCanvas || qrImg;
-    if (drawSource) {
-      ctx.drawImage(
-        drawSource,
-        padding,
-        padding,
-        size - padding * 2,
-        size - padding * 2
+      const drawSource = qrCanvas || qrImg;
+      if (drawSource) {
+        ctx.drawImage(
+          drawSource,
+          padding,
+          padding,
+          size - padding * 2,
+          size - padding * 2
+        );
+        const dataUrl = exportCanvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = `ZT_Key_${myIdentity.alias}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+
+  if (btnDashEditAlias) {
+    btnDashEditAlias.addEventListener("click", () => {
+      const newName = prompt(
+        "Saisir un nouvel identifiant local :",
+        myIdentity.alias
       );
-      const dataUrl = exportCanvas.toDataURL("image/png");
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `QR_ZeroTrust_${myIdentity.alias}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
+      if (newName && newName.trim()) {
+        myIdentity.alias = newName.trim().slice(0, 24);
+        saveState();
+        renderIdentityHeader();
+        renderDashboardQr();
+      }
+    });
   }
 
   // =========================================================================
-  // 4. SCANNER DE QR CODE (CAMÉRA ANDROID / WEBCAM / IMPORT IMAGE)
+  // 4. SCANNER SUR LA PAGE D'ACCUEIL (CAMERA OU IMPORT FICHIER)
   // =========================================================================
-  function openScannerModalAndRequestCamera() {
-    if (isInsecureHttpOnLan) {
-      window.location.href = `https://${window.location.host}${window.location.pathname}${window.location.search}`;
-      return;
-    }
-    modalScanner.classList.add("open");
-    requestCameraPermissionAndStream();
+  function setScannerStatus(text, isError) {
+    if (!dashScannerStatus) return;
+    dashScannerStatus.textContent = text;
+    dashScannerStatus.style.color = isError ? "#f87171" : "#94a3b8";
   }
 
-  function closeScannerModal() {
+  async function startLiveCameraScanner() {
     stopCameraStream();
-    modalScanner.classList.remove("open");
-  }
-
-  async function requestCameraPermissionAndStream() {
-    stopCameraStream();
-    btnRequestCameraPerm.style.display = "none";
+    if (btnTriggerScannerPerm) btnTriggerScannerPerm.style.display = "none";
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      btnRequestCameraPerm.style.display = "block";
+      if (btnTriggerScannerPerm) btnTriggerScannerPerm.style.display = "block";
       setScannerStatus(
-        "Pour que Chrome Android demande la caméra, ouvrez l'adresse en HTTPS.",
-        "error"
+        "Autorisation camera requise. Verifiez que l'acces s'effectue en HTTPS.",
+        true
       );
       return;
     }
 
-    setScannerStatus(
-      "Veuillez autoriser la caméra dans la boîte de dialogue système...",
-      ""
-    );
+    setScannerStatus("Initialisation du capteur video...", false);
 
     try {
       try {
@@ -323,20 +412,19 @@
         });
       }
 
-      scannerVideo.srcObject = mediaStream;
-      scannerVideo.setAttribute("playsinline", "true");
-      await scannerVideo.play();
-      btnRequestCameraPerm.style.display = "none";
+      dashScannerVideo.srcObject = mediaStream;
+      dashScannerVideo.setAttribute("playsinline", "true");
+      await dashScannerVideo.play();
       setScannerStatus(
-        "✓ Caméra active : alignez le QR Code dans le réticule.",
-        "success"
+        "Viseur actif : alignez le QR Code dans le reticule.",
+        false
       );
       scanInterval = setInterval(scanVideoFrame, 120);
     } catch (err) {
-      btnRequestCameraPerm.style.display = "block";
+      if (btnTriggerScannerPerm) btnTriggerScannerPerm.style.display = "block";
       setScannerStatus(
-        "Autorisation caméra refusée ou en attente. Appuyez sur 'Autoriser' ou 'Photo QR'.",
-        "error"
+        "Acces camera refuse. Veuillez autoriser la camera dans le navigateur.",
+        true
       );
     }
   }
@@ -350,33 +438,37 @@
       mediaStream.getTracks().forEach((t) => t.stop());
       mediaStream = null;
     }
-    scannerVideo.srcObject = null;
+    if (dashScannerVideo) {
+      dashScannerVideo.srcObject = null;
+    }
   }
 
   function scanVideoFrame() {
-    if (scannerVideo.readyState !== scannerVideo.HAVE_ENOUGH_DATA) return;
-    const w = scannerVideo.videoWidth;
-    const h = scannerVideo.videoHeight;
-    if (!w || !h) return;
+    if (!dashScannerVideo || dashScannerVideo.readyState !== dashScannerVideo.HAVE_ENOUGH_DATA) return;
+    const w = dashScannerVideo.videoWidth;
+    const h = dashScannerVideo.videoHeight;
+    if (!w || !h || !dashScannerCanvas) return;
 
-    scannerWorkCanvas.width = w;
-    scannerWorkCanvas.height = h;
-    const ctx = scannerWorkCanvas.getContext("2d");
-    ctx.drawImage(scannerVideo, 0, 0, w, h);
+    dashScannerCanvas.width = w;
+    dashScannerCanvas.height = h;
+    const ctx = dashScannerCanvas.getContext("2d");
+    ctx.drawImage(dashScannerVideo, 0, 0, w, h);
 
     const imgData = ctx.getImageData(0, 0, w, h);
+    if (!window.jsQR) return;
+
     const code = window.jsQR(imgData.data, imgData.width, imgData.height, {
       inversionAttempts: "dontInvert",
     });
 
     if (code && code.data) {
-      handleDetectedQrString(code.data);
+      handleDetectedQrPayload(code.data);
     }
   }
 
-  function handleQrImageFile(file) {
-    if (!file) return;
-    setScannerStatus("Analyse cryptographique de l'image QR...", "");
+  function handleQrFileImport(file) {
+    if (!file || !dashScannerCanvas) return;
+    setScannerStatus("Analyse cryptographique de l'image importee...", false);
 
     const reader = new FileReader();
     reader.onload = function (ev) {
@@ -391,28 +483,30 @@
           drawH = Math.round(drawH * ratio);
         }
 
-        const pad = 40;
+        const pad = 30;
         const w = drawW + pad * 2;
         const h = drawH + pad * 2;
-        scannerWorkCanvas.width = w;
-        scannerWorkCanvas.height = h;
-        const ctx = scannerWorkCanvas.getContext("2d");
+        dashScannerCanvas.width = w;
+        dashScannerCanvas.height = h;
+        const ctx = dashScannerCanvas.getContext("2d");
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, pad, pad, drawW, drawH);
 
         const imgData = ctx.getImageData(0, 0, w, h);
+        if (!window.jsQR) {
+          setScannerStatus("Erreur : Module jsQR non disponible.", true);
+          return;
+        }
+
         const code = window.jsQR(imgData.data, imgData.width, imgData.height, {
           inversionAttempts: "attemptBoth",
         });
 
         if (code && code.data) {
-          handleDetectedQrString(code.data);
+          handleDetectedQrPayload(code.data);
         } else {
-          setScannerStatus(
-            "Aucun QR Code valide détecté dans cette image.",
-            "error"
-          );
+          setScannerStatus("Aucun QR Code valide detecte dans l'image.", true);
         }
       };
       img.src = ev.target.result;
@@ -420,34 +514,165 @@
     reader.readAsDataURL(file);
   }
 
-  async function handleDetectedQrString(rawQr) {
+  async function handleDetectedQrPayload(rawQr) {
     const result = await window.ztCrypto.verifyAndParseQrPayload(rawQr);
     if (!result.valid) {
-      setScannerStatus(result.error, "error");
+      setScannerStatus(result.error, true);
       return;
     }
 
     const contact = result.contact;
     if (contact.id === myIdentity.deviceId) {
       setScannerStatus(
-        "Ceci est votre propre QR Code ! Scannez celui d'un autre appareil.",
-        "error"
+        "Ce QR Code correspond a votre propre identite locale.",
+        true
       );
       return;
     }
 
     registerOrUpdateContact(contact);
     setScannerStatus(
-      `✓ Signature ECDSA secp256r1 vérifiée : ${contact.alias} ajouté !`,
-      "success"
+      `Signature ECDSA secp256r1 validee : ${contact.alias} ajoute.`,
+      false
     );
 
     await sendEncryptedHandshake(contact);
 
+    // Arret de la camera et bascule vers l'onglet conversation
+    stopCameraStream();
     setTimeout(() => {
-      closeScannerModal();
+      switchView("chats");
       selectContact(contact.id);
-    }, 400);
+    }, 450);
+  }
+
+  if (btnStartCameraLive) {
+    btnStartCameraLive.addEventListener("click", startLiveCameraScanner);
+  }
+  if (btnTriggerScannerPerm) {
+    btnTriggerScannerPerm.addEventListener("click", startLiveCameraScanner);
+  }
+  if (btnImportImageQr && dashFileInput) {
+    btnImportImageQr.addEventListener("click", () => {
+      dashFileInput.value = "";
+      dashFileInput.click();
+    });
+    dashFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleQrFileImport(e.target.files[0]);
+      }
+    });
+  }
+
+  // =========================================================================
+  // 5. GESTION DES CONTACTS & AFFICHAGE CONVERSATIONS
+  // =========================================================================
+  let contactSearchQuery = "";
+
+  if (chatsSearchInput) {
+    chatsSearchInput.addEventListener("input", (e) => {
+      contactSearchQuery = e.target.value.toLowerCase().trim();
+      renderContactsList();
+    });
+  }
+
+  function renderContactsList() {
+    if (!chatsContactsList) return;
+    if (chatsCountBadge) {
+      chatsCountBadge.textContent = String(verifiedContacts.length);
+    }
+    chatsContactsList.innerHTML = "";
+
+    const filtered = verifiedContacts.filter((c) =>
+      c.alias.toLowerCase().includes(contactSearchQuery) ||
+      c.fingerprint.toLowerCase().includes(contactSearchQuery)
+    );
+
+    if (filtered.length === 0) {
+      const emptyNote = document.createElement("div");
+      emptyNote.style.padding = "24px 14px";
+      emptyNote.style.textAlign = "center";
+      emptyNote.style.color = "var(--text-sub)";
+      emptyNote.style.fontSize = "12px";
+      emptyNote.textContent = contactSearchQuery
+        ? "Aucun contact correspondant."
+        : "Aucun contact verifie pour le moment.";
+      chatsContactsList.appendChild(emptyNote);
+      return;
+    }
+
+    filtered.forEach((contact) => {
+      const cell = document.createElement("div");
+      cell.className =
+        "contact-cell" + (contact.id === activeContactId ? " active" : "");
+      const initials = (contact.alias || "ZT").slice(0, 2).toUpperCase();
+      const unread = unreadByContact[contact.id] || 0;
+
+      cell.innerHTML = `
+        <div class="contact-initials">${escapeHtml(initials)}</div>
+        <div class="contact-body">
+          <div class="contact-top-line">
+            <span class="contact-display-name">${escapeHtml(contact.alias)}</span>
+            ${
+              unread > 0
+                ? `<span class="badge-unread">${unread}</span>`
+                : `<span class="tag-verified">Verifie</span>`
+            }
+          </div>
+          <div class="contact-fingerprint-sub">${escapeHtml(contact.fingerprint)}</div>
+        </div>
+      `;
+
+      cell.addEventListener("click", () => {
+        selectContact(contact.id);
+        if (chatsLayout) {
+          chatsLayout.setAttribute("data-chat-view", "room");
+        }
+      });
+
+      chatsContactsList.appendChild(cell);
+    });
+  }
+
+  function selectContact(contactId) {
+    const contact = verifiedContacts.find((c) => c.id === contactId);
+    if (!contact) return;
+
+    activeContactId = contact.id;
+    unreadByContact[contact.id] = 0;
+    updateUnreadTotalBadge();
+
+    // Masque l'ecran vide specifique plateforme et active la vue chat
+    if (emptyPlatformState) emptyPlatformState.style.display = "none";
+    if (activeChatView) activeChatView.style.display = "flex";
+
+    if (activeChatPeerName) activeChatPeerName.textContent = contact.alias;
+    if (activeChatPeerMeta) {
+      activeChatPeerMeta.textContent = `Empreinte : ${contact.fingerprint} | Boite : ${contact.mailbox.slice(0, 10)}...`;
+    }
+
+    if (chatsLayout) {
+      chatsLayout.setAttribute("data-chat-view", "room");
+    }
+
+    renderContactsList();
+    renderChatMessages();
+  }
+
+  function updateUnreadTotalBadge() {
+    let total = 0;
+    Object.keys(unreadByContact).forEach((k) => {
+      total += unreadByContact[k] || 0;
+    });
+
+    if (unreadTotalBadge) {
+      if (total > 0) {
+        unreadTotalBadge.style.display = "inline-block";
+        unreadTotalBadge.textContent = String(total);
+      } else {
+        unreadTotalBadge.style.display = "none";
+      }
+    }
   }
 
   function registerOrUpdateContact(contact) {
@@ -464,13 +689,8 @@
     renderContactsList();
   }
 
-  function setScannerStatus(text, type) {
-    scannerStatusMsg.textContent = text;
-    scannerStatusMsg.className = "scanner-status-msg" + (type ? ` ${type}` : "");
-  }
-
   // =========================================================================
-  // 5. ENVOI & RÉCEPTION SÉCURISÉE AVEC ANTI-REJEU ET AUTO-HANDSHAKE SIGNÉ
+  // 6. ENVOI DE MESSAGES CHIFFRES (E2EE P-256 + AES-256-GCM)
   // =========================================================================
   async function sendEncryptedHandshake(targetContact) {
     try {
@@ -538,20 +758,6 @@
     } catch (_) {}
   }
 
-  function showPushNotification(senderName, messageText) {
-    if (!("Notification" in window)) return;
-    if (Notification.permission === "granted") {
-      try {
-        const preview = messageText && messageText.length > 30 ? messageText.slice(0, 30) + "..." : messageText;
-        new Notification("Nouveau message sécurisé", {
-          body: `${senderName}: ${preview}`,
-          icon: "/favicon.ico",
-          badge: "/favicon.ico",
-        });
-      } catch (_) {}
-    }
-  }
-
   async function sendEncryptedChatMessage(text) {
     const contact = verifiedContacts.find((c) => c.id === activeContactId);
     if (!contact || !text.trim()) return;
@@ -592,7 +798,7 @@
       cipherMeta: {
         eph_x: envelope.eph_x.slice(0, 14) + "...",
         iv: envelope.iv,
-        ct: envelope.ct.slice(0, 28) + "...",
+        ct: envelope.ct.slice(0, 24) + "...",
         tag: envelope.tag,
         seq: seq,
       },
@@ -621,7 +827,22 @@
     } catch (_) {}
   }
 
+  if (activeChatComposer) {
+    activeChatComposer.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!activeChatInput) return;
+      const text = activeChatInput.value;
+      activeChatInput.value = "";
+      await sendEncryptedChatMessage(text);
+    });
+  }
+
+  // =========================================================================
+  // 7. POLLING DU RELAIS ET TRAITEMENT DES MESSAGES ENTRANTS
+  // =========================================================================
   function startSignedRelayPolling() {
+    let failureCount = 0;
+
     const pollFn = async () => {
       if (!myIdentity) return;
       try {
@@ -632,7 +853,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-ZT-Protocol": "2.4",
+            "X-ZT-Protocol": "3.0",
           },
           body: JSON.stringify({
             mailbox: myIdentity.mailbox,
@@ -643,23 +864,35 @@
           }),
         });
 
-        const relayBadge = document.getElementById("relayStatusBadge");
         if (!res.ok) {
-          if (relayBadge) {
-            relayBadge.textContent = `RELAIS : ERREUR (${res.status})`;
+          failureCount++;
+          if (failureCount > 2 && relayStatusText) {
+            relayStatusText.className = "status-pill status-pill-inactive";
+            relayStatusText.innerHTML = `<span class="status-dot"></span><span>Relais Deconnecte</span>`;
           }
           return;
         }
-        if (relayBadge) {
-          relayBadge.textContent = "RELAIS AVEUGLE : CONNECTÉ";
+
+        failureCount = 0;
+        if (relayStatusText) {
+          relayStatusText.className = "status-pill status-pill-active";
+          relayStatusText.innerHTML = `<span class="status-dot"></span><span>Relais Chiffre Actif</span>`;
         }
+
         const data = await res.json();
         const packets = data.packets || [];
         for (const pkt of packets) {
           await processIncomingEncryptedPacket(pkt);
         }
-      } catch (_) {}
+      } catch (_) {
+        failureCount++;
+        if (failureCount > 2 && relayStatusText) {
+          relayStatusText.className = "status-pill status-pill-inactive";
+          relayStatusText.innerHTML = `<span class="status-dot"></span><span>Relais Deconnecte</span>`;
+        }
+      }
     };
+
     pollFn();
     setInterval(pollFn, 950);
   }
@@ -669,23 +902,19 @@
       const envelope = packet.envelope;
       if (!envelope) return;
 
-      // Protection Anti-Rejeu par empreinte unique (sender_id + seq + iv)
       const packetUniqueKey = `${packet.sender_id}:${envelope.seq}:${envelope.iv}`;
-      if (seenPacketIds.has(packetUniqueKey)) {
-        console.warn("[ZeroTrust Anti-Replay] Paquet rejoué bloqué :", packetUniqueKey);
-        return;
-      }
+      if (seenPacketIds.has(packetUniqueKey)) return;
 
       let senderContact = verifiedContacts.find(
         (c) => c.id === packet.sender_id
       );
 
-      // Déchiffrement AES-256-GCM avec notre clé privée ECDH secp256r1
       const contactRef = senderContact || {
         id: packet.sender_id,
         x: envelope.eph_x,
         y: envelope.eph_y,
       };
+
       const decrypted = await window.ztCrypto.decryptMessage(
         myIdentity,
         contactRef,
@@ -695,7 +924,6 @@
 
       seenPacketIds.add(packetUniqueKey);
 
-      // Si le paquet contient la preuve QR signée ECDSA de l'émetteur, on vérifie et met à jour le contact
       const qrToVerify = decrypted.qrPayload || decrypted.senderQrPayload;
       if (qrToVerify) {
         const verifyRes = await window.ztCrypto.verifyAndParseQrPayload(
@@ -720,7 +948,9 @@
       if (decrypted.type === "CHAT_READ_RECEIPT" && senderContact) {
         const targetMsgId = decrypted.readMsgId;
         const contactMsgs = messagesByContact[senderContact.id] || [];
-        const msg = contactMsgs.find((m) => m.id === targetMsgId || (decrypted.readSeq && m.seq === decrypted.readSeq));
+        const msg = contactMsgs.find(
+          (m) => m.id === targetMsgId || (decrypted.readSeq && m.seq === decrypted.readSeq)
+        );
         if (msg && msg.outgoing) {
           msg.status = "read";
           saveState();
@@ -733,7 +963,10 @@
 
       if (decrypted.type === "CHAT_MSG" && senderContact) {
         const seq = envelope.seq || 0;
-        const incomingMsgId = decrypted.msgId || ("msg-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6));
+        const incomingMsgId =
+          decrypted.msgId ||
+          "msg-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
+
         const msgEntry = {
           id: incomingMsgId,
           senderId: senderContact.id,
@@ -745,7 +978,7 @@
           cipherMeta: {
             eph_x: (envelope.eph_x || "").slice(0, 14) + "...",
             iv: envelope.iv,
-            ct: (envelope.ct || "").slice(0, 28) + "...",
+            ct: (envelope.ct || "").slice(0, 24) + "...",
             tag: envelope.tag,
             seq: seq,
           },
@@ -756,11 +989,8 @@
         }
         messagesByContact[senderContact.id].push(msgEntry);
 
-        // Envoyer automatiquement un accusé de lecture chiffré E2EE sans fuite
+        // Envoi accuse de lecture E2EE
         sendEncryptedReadReceipt(senderContact, incomingMsgId, seq);
-
-        // Déclencher une notification système si l'application est en arrière-plan
-        showPushNotification(senderContact.alias, decrypted.text);
 
         if (!activeContactId) {
           selectContact(senderContact.id);
@@ -769,103 +999,126 @@
         } else {
           unreadByContact[senderContact.id] =
             (unreadByContact[senderContact.id] || 0) + 1;
+          updateUnreadTotalBadge();
         }
 
         saveState();
         renderContactsList();
       }
     } catch (err) {
-      console.error("[ZeroTrust] Paquet rejeté ou tag GCM invalide :", err);
+      console.error("[ZeroTrust] Paquet rejete :", err);
     }
   }
 
+  // =========================================================================
+  // 8. RENDU DES MESSAGES ET FONCTIONNALITES CHAT
+  // =========================================================================
   function renderChatMessages() {
-    chatMessagesArea.innerHTML = "";
+    if (!chatMessagesScroll) return;
+    chatMessagesScroll.innerHTML = "";
+
     const contact = verifiedContacts.find((c) => c.id === activeContactId);
     if (!contact) return;
 
-    const notice = document.createElement("div");
-    notice.className = "system-crypto-notice";
-    notice.innerHTML = `
-      🔐 <strong>CANAL ZERO TRUST DURCI AVEC ${escapeHtml(
-        contact.alias.toUpperCase()
-      )}</strong><br/>
-      Protection anti-rejeu active. Padding constant 256 octets. Chiffrement matériel ECDH secp256r1 + AES-256-GCM.
-    `;
-    chatMessagesArea.appendChild(notice);
-
     const msgs = messagesByContact[contact.id] || [];
+
     msgs.forEach((m) => {
-      const row = document.createElement("div");
-      row.className = "msg-row " + (m.outgoing ? "outgoing" : "incoming");
+      const entry = document.createElement("div");
+      entry.className = "message-entry " + (m.outgoing ? "outgoing" : "incoming");
 
       const timeStr = new Date(m.ts).toLocaleTimeString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
       });
 
       let cipherHtml = "";
       if (showCipherInspector && m.cipherMeta) {
         cipherHtml = `
-          <div class="msg-cipher-preview" title="Paquet chiffré avec séquence AAD et padding constant">
-            E2EE [#${m.cipherMeta.seq} | EphPK:${escapeHtml(
-          m.cipherMeta.eph_x
-        )} | IV:${escapeHtml(m.cipherMeta.iv)} | AES-GCM:${escapeHtml(
-          m.cipherMeta.ct
-        )}]
+          <div class="message-crypto-inspect" title="Paquet chiffre E2EE">
+            E2EE [#${m.cipherMeta.seq} | EphPK:${escapeHtml(m.cipherMeta.eph_x)} | IV:${escapeHtml(m.cipherMeta.iv)} | CT:${escapeHtml(m.cipherMeta.ct)}]
           </div>
         `;
       }
 
-      let statusIndicator = "";
+      let statusHtml = "";
       if (m.outgoing) {
         if (m.status === "read") {
-          statusIndicator = `<span style="color: var(--primary); font-weight: 700; margin-left: 4px;">Vu</span>`;
+          statusHtml = `<span class="status-read-tag">Vu</span>`;
         } else {
-          statusIndicator = `<span style="color: var(--text-sub); margin-left: 4px;">Envoyé</span>`;
+          statusHtml = `<span>Envoye</span>`;
         }
       }
 
-      row.innerHTML = `
-        <div class="msg-bubble">${escapeHtml(m.text)}</div>
+      entry.innerHTML = `
+        <div class="message-core">${escapeHtml(m.text)}</div>
         ${cipherHtml}
-        <div class="msg-meta">
-          <span>Seq #${m.seq || 0}</span>
+        <div class="message-details-line">
+          <span>#${m.seq || 0}</span>
           <span>•</span>
           <span>${timeStr}</span>
           <span>•</span>
-          <span style="color: #059669; font-weight: 600;">Chiffré AES-256</span>
-          ${statusIndicator}
+          <span>AES-256</span>
+          ${statusHtml}
         </div>
       `;
 
-      // Clic pour copier le message dans le presse-papiers
-      const bubble = row.querySelector(".msg-bubble");
-      if (bubble) {
-        bubble.addEventListener("click", () => {
+      const core = entry.querySelector(".message-core");
+      if (core) {
+        core.addEventListener("click", () => {
           if (navigator.clipboard) {
-            navigator.clipboard.writeText(m.text).then(() => showToast("Texte copié")).catch(() => {});
+            navigator.clipboard
+              .writeText(m.text)
+              .then(() => showToast("Texte copie"))
+              .catch(() => {});
           }
         });
       }
 
-      chatMessagesArea.appendChild(row);
+      chatMessagesScroll.appendChild(entry);
     });
 
-    chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+    chatMessagesScroll.scrollTop = chatMessagesScroll.scrollHeight;
   }
 
   function showToast(text) {
-    const toast = document.getElementById("copyToastNotice");
-    if (!toast) return;
-    toast.textContent = text;
-    toast.classList.add("show");
+    if (!toastNotification) return;
+    toastNotification.textContent = text;
+    toastNotification.classList.add("show");
     setTimeout(() => {
-      toast.classList.remove("show");
-    }, 1800);
+      toastNotification.classList.remove("show");
+    }, 1600);
   }
 
+  if (btnToggleInspector) {
+    btnToggleInspector.addEventListener("click", () => {
+      showCipherInspector = !showCipherInspector;
+      btnToggleInspector.textContent = `Inspecteur : ${
+        showCipherInspector ? "ON" : "OFF"
+      }`;
+      renderChatMessages();
+    });
+  }
+
+  if (btnDeleteActiveChat) {
+    btnDeleteActiveChat.addEventListener("click", () => {
+      if (!activeContactId) return;
+      const contact = verifiedContacts.find((c) => c.id === activeContactId);
+      const name = contact ? contact.alias : "ce contact";
+      if (
+        confirm(
+          `Confirmez-vous la suppression definitive de l'historique local avec ${name} ?`
+        )
+      ) {
+        delete messagesByContact[activeContactId];
+        saveState();
+        renderChatMessages();
+      }
+    });
+  }
+
+  // =========================================================================
+  // 9. STATUT DU SERVEUR ET MODALE ACCES MOBILE
+  // =========================================================================
   async function fetchServerStatus() {
     try {
       const res = await fetch("/api/status");
@@ -876,42 +1129,48 @@
             info.server_time - Math.floor(Date.now() / 1000);
         }
         if (info.public_4g_url) {
-          currentPublic4gUrl = info.public_4g_url;
-        }
-        const lanEl = document.getElementById("lanUrlDisplay");
-        if (lanEl) {
-          if (info.public_4g_url) {
-            lanEl.innerHTML = `🌐 <strong>Accès Mobile 4G / 5G :</strong> <a href="${info.public_4g_url}" target="_blank" style="color: var(--cyber-cyan); text-decoration: underline;">${info.public_4g_url}</a>`;
-          } else if (info.lan_ip) {
-            lanEl.textContent = `Android HTTPS : https://${info.lan_ip}:${info.port}`;
-          }
+          remoteServerUrl = info.public_4g_url;
         }
       }
     } catch (_) {}
   }
 
-  function open4gUrlQrModal() {
-    const modal4g = document.getElementById("modal4gUrlQr");
-    const container = document.getElementById("tunnel4gQrContainer");
-    const urlText = document.getElementById("tunnel4gUrlText");
-    if (!modal4g || !container) return;
+  function openMobileUrlModal() {
+    if (!modalMobileUrl || !serverUrlQrContainer) return;
+    serverUrlQrContainer.innerHTML = "";
 
-    container.innerHTML = "";
-    if (urlText) {
-      urlText.textContent = currentPublic4gUrl;
-      urlText.href = currentPublic4gUrl;
+    const targetUrl = remoteServerUrl || window.location.origin;
+    if (serverUrlDisplay) {
+      serverUrlDisplay.textContent = targetUrl;
+      serverUrlDisplay.href = targetUrl;
     }
 
-    new QRCode(container, {
-      text: currentPublic4gUrl,
-      width: 230,
-      height: 230,
+    new QRCode(serverUrlQrContainer, {
+      text: targetUrl,
+      width: 200,
+      height: 200,
       colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.M,
     });
 
-    modal4g.classList.add("open");
+    modalMobileUrl.classList.add("open");
+  }
+
+  if (btnHeaderMobileLink) {
+    btnHeaderMobileLink.addEventListener("click", openMobileUrlModal);
+  }
+  if (btnCloseModalMobile) {
+    btnCloseModalMobile.addEventListener("click", () => {
+      if (modalMobileUrl) modalMobileUrl.classList.remove("open");
+    });
+  }
+  if (modalMobileUrl) {
+    modalMobileUrl.addEventListener("click", (e) => {
+      if (e.target === modalMobileUrl) {
+        modalMobileUrl.classList.remove("open");
+      }
+    });
   }
 
   function escapeHtml(str) {
@@ -922,219 +1181,6 @@
       .replace(/"/g, "&quot;");
   }
 
-  // Événements
-  const btnShow4gQr = document.getElementById("btnShow4gQr");
-  const btnClose4gQr = document.getElementById("btnClose4gQr");
-  if (btnShow4gQr) {
-    btnShow4gQr.addEventListener("click", open4gUrlQrModal);
-  }
-  if (btnClose4gQr) {
-    btnClose4gQr.addEventListener("click", () => {
-      const modal4g = document.getElementById("modal4gUrlQr");
-      if (modal4g) modal4g.classList.remove("open");
-    });
-  }
-
-  document.getElementById("btnShowMyQr").addEventListener("click", openMyQrModal);
-  document.getElementById("btnCloseMyQr").addEventListener("click", () => {
-    modalMyQr.classList.remove("open");
-  });
-  document
-    .getElementById("btnDownloadQrPng")
-    .addEventListener("click", downloadMyQrAsPng);
-
-  document
-    .getElementById("btnOpenScanner")
-    .addEventListener("click", openScannerModalAndRequestCamera);
-  document
-    .getElementById("btnCloseScanner")
-    .addEventListener("click", closeScannerModal);
-
-  btnRequestCameraPerm.addEventListener(
-    "click",
-    requestCameraPermissionAndStream
-  );
-
-  document
-    .getElementById("btnNativeCameraCapture")
-    .addEventListener("click", () => {
-      qrNativeCameraInput.value = "";
-      qrNativeCameraInput.click();
-    });
-
-  qrNativeCameraInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files[0])
-      handleQrImageFile(e.target.files[0]);
-  });
-
-  document.getElementById("btnImportQrImage").addEventListener("click", () => {
-    qrFileInput.value = "";
-    qrFileInput.click();
-  });
-
-  qrFileInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files[0])
-      handleQrImageFile(e.target.files[0]);
-  });
-
-  document.getElementById("btnSwitchCamera").addEventListener("click", () => {
-    facingMode = facingMode === "environment" ? "user" : "environment";
-    requestCameraPermissionAndStream();
-  });
-
-  document.getElementById("btnEditAlias").addEventListener("click", () => {
-    const newName = prompt(
-      "Entrez votre nouvel alias local :",
-      myIdentity.alias
-    );
-    if (newName && newName.trim()) {
-      myIdentity.alias = newName.trim().slice(0, 24);
-      saveState();
-      renderIdentityHeader();
-    }
-  });
-
-  document
-    .getElementById("btnToggleCipherInspector")
-    .addEventListener("click", (e) => {
-      showCipherInspector = !showCipherInspector;
-      e.target.textContent = `Inspecteur Paquets E2EE : ${
-        showCipherInspector ? "ON" : "OFF"
-      }`;
-      renderChatMessages();
-    });
-
-  // Boutons d'action rapide de la page d'accueil Hero
-  const btnHeroScan = document.getElementById("btnHeroScan");
-  const btnHeroShowQr = document.getElementById("btnHeroShowQr");
-  const stepCard1 = document.getElementById("stepCard1");
-  const stepCard2 = document.getElementById("stepCard2");
-  const stepCard3 = document.getElementById("stepCard3");
-
-  if (btnHeroScan) {
-    btnHeroScan.addEventListener("click", openScannerModalAndRequestCamera);
-  }
-  if (btnHeroShowQr) {
-    btnHeroShowQr.addEventListener("click", openMyQrModal);
-  }
-  if (stepCard1) {
-    stepCard1.addEventListener("click", openMyQrModal);
-  }
-  if (stepCard2) {
-    stepCard2.addEventListener("click", openScannerModalAndRequestCamera);
-  }
-  if (stepCard3 && verifiedContacts.length > 0) {
-    stepCard3.addEventListener("click", () => selectContact(verifiedContacts[0].id));
-  }
-
-  // Barre de recherche dans les contacts
-  const contactSearchInput = document.getElementById("contactSearchInput");
-  if (contactSearchInput) {
-    contactSearchInput.addEventListener("input", (e) => {
-      contactSearchQuery = e.target.value;
-      renderContactsList();
-    });
-  }
-
-  // Bouton de suppression de discussion
-  const btnDeleteConversation = document.getElementById("btnDeleteConversation");
-  if (btnDeleteConversation) {
-    btnDeleteConversation.addEventListener("click", () => {
-      if (!activeContactId) return;
-      const contact = verifiedContacts.find((c) => c.id === activeContactId);
-      const name = contact ? contact.alias : "ce contact";
-      if (confirm(`Voulez-vous supprimer définitivement la discussion avec ${name} et son historique local ?`)) {
-        delete messagesByContact[activeContactId];
-        saveState();
-        renderChatMessages();
-      }
-    });
-  }
-
-  // Bouton d'activation des notifications système
-  const btnEnableNotifications = document.getElementById("btnEnableNotifications");
-  if (btnEnableNotifications) {
-    btnEnableNotifications.addEventListener("click", async () => {
-      if (!("Notification" in window)) {
-        alert("Les notifications ne sont pas prises en charge par ce navigateur.");
-        return;
-      }
-      const perm = await Notification.requestPermission();
-      if (perm === "granted") {
-        alert("Notifications activées avec succès !");
-      } else {
-        alert("Autorisation de notification refusée.");
-      }
-    });
-  }
-
-  document.getElementById("btnMobileBack").addEventListener("click", () => {
-    appWorkspace.setAttribute("data-mobile-view", "contacts");
-  });
-
-  // Gestion du menu burger mobile (tiroir 3 barres)
-  const mobileDrawerBackdrop = document.getElementById("mobileDrawerBackdrop");
-  const btnToggleMobileMenu = document.getElementById("btnToggleMobileMenu");
-  const btnCloseMobileDrawer = document.getElementById("btnCloseMobileDrawer");
-  const btnDrawerShow4gQr = document.getElementById("btnDrawerShow4gQr");
-  const btnDrawerOpenSecondDevice = document.getElementById("btnDrawerOpenSecondDevice");
-
-  if (btnToggleMobileMenu && mobileDrawerBackdrop) {
-    btnToggleMobileMenu.addEventListener("click", () => {
-      mobileDrawerBackdrop.classList.add("open");
-    });
-  }
-
-  if (btnCloseMobileDrawer && mobileDrawerBackdrop) {
-    btnCloseMobileDrawer.addEventListener("click", () => {
-      mobileDrawerBackdrop.classList.remove("open");
-    });
-  }
-
-  if (mobileDrawerBackdrop) {
-    mobileDrawerBackdrop.addEventListener("click", (e) => {
-      if (e.target === mobileDrawerBackdrop) {
-        mobileDrawerBackdrop.classList.remove("open");
-      }
-    });
-  }
-
-  if (btnDrawerShow4gQr) {
-    btnDrawerShow4gQr.addEventListener("click", () => {
-      if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.remove("open");
-      open4gUrlQrModal();
-    });
-  }
-
-  if (btnDrawerOpenSecondDevice) {
-    btnDrawerOpenSecondDevice.addEventListener("click", () => {
-      if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.remove("open");
-      const nextDev = deviceNamespace === "PRIMARY" ? "B" : "C";
-      window.open(
-        `/?device=${nextDev}`,
-        "_blank",
-        "width=980,height=720,menubar=no,toolbar=no"
-      );
-    });
-  }
-
-  document
-    .getElementById("btnOpenSecondDevice")
-    .addEventListener("click", () => {
-      const nextDev = deviceNamespace === "PRIMARY" ? "B" : "C";
-      window.open(
-        `/?device=${nextDev}`,
-        "_blank",
-        "width=980,height=720,menubar=no,toolbar=no"
-      );
-    });
-
-  chatComposerForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const text = chatInput.value;
-    chatInput.value = "";
-    await sendEncryptedChatMessage(text);
-  });
-
+  // Lancement
   initApp();
 })();
